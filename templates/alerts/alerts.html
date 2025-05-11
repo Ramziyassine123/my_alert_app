@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <title>Manage Alerts</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+</head>
+<body>
+
+<div class="loading-spinner" id="loading-spinner">
+    <div></div>
+</div>
+
+<h1>Manage Your Alerts</h1>
+
+<h2>Create New Alert</h2>
+<!-- Alert Creation Form -->
+<form id="alert-form" method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}  <!-- This will render the form fields -->
+    <button type="submit">Create Alert</button>
+</form>
+
+<!-- Alerts List -->
+<h2>Your Alerts</h2>
+<div id="alerts-list">
+    <!-- Alerts will be generated here -->
+</div>
+
+<div id="alert-status"></div>
+
+<script src="{% static 'js/script.js' %}"></script>
+
+</body>
+</html>
