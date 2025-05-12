@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <title>Select Connection Type</title>
+</head>
+<body>
+<h1>Select Connection Type</h1>
+<form method="post">
+    {% csrf_token %}
+    <label>
+        <input type="radio" name="connection_type" value="long_polling" required>
+        HTTP Long Polling
+    </label><br>
+    <label>
+        <input type="radio" name="connection_type" value="websocket" required>
+        WebSockets
+    </label><br>
+    <label>
+        <input type="radio" name="connection_type" value="push" required>
+        Firebase Push Notifications
+    </label><br>
+    <button type="submit">Submit</button>
+</form>
+</body>
+</html>

@@ -1,12 +1,31 @@
+import time
+import requests
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth import login, authenticate, logout, login
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import Alert, UserPreference
+from .models import Alert, UserProfile
 from django.http import JsonResponse
 from .forms import AlertForm
-import json
+from django.contrib.auth.forms import AuthenticationForm
+
+
+@login_required
+def connection_type_view(request):
+    if request.method == 'POST':
+        connection_type = request.POST.get('connection_type')
+
+        # Save the connection type to the user's profile
+        user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+        user_profile.connection_type = connection_type
+        user_profile.save()
+
+        return redirect('alerts')  # Redirect to the alerts view after selection
+
+    return render(request, 'connection_type.html')
 
 
 def index(request):
@@ -41,13 +60,18 @@ def register(request):
 
 def login_view(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect('alerts')  # Redirect to alerts page after login
-    return render(request, 'alerts/login.html')
+        form = AuthenticationForm(data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('connection_type')  # Redirect to connection type selection
+    else:
+        form = AuthenticationForm()
+
+    return render(request, 'login.html', {'form': form})
 
 
 def logout_view(request):
@@ -57,20 +81,102 @@ def logout_view(request):
 
 @login_required
 def alerts_view(request):
+    user_profile = UserProfile.objects.get(user=request.user)  # Get the user's profile
+    connection_type = user_profile.connection_type  # Get the connection type
+
     if request.method == 'POST':
         form = AlertForm(request.POST)
         if form.is_valid():
             alert = form.save(commit=False)
-            alert.user = request.user  # Set the user
+            alert.user = request.user
+            alert.notification_type = connection_type  # Set the notification type based on user profile
             alert.save()
+
+            # Logic for sending notifications based on the selected technology
+            if connection_type == 'websocket':
+                # Send via WebSocket
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                    "alerts",
+                    {
+                        'type': 'send_alert',
+                        'title': alert.title,
+                        'message': alert.message,
+                        'period': alert.period,
+                    }
+                )
+            elif connection_type == 'push':
+                # Send via push notification
+                send_push_notification(alert.title, alert.message, alert.period)
+            elif connection_type == 'long_polling':
+                # Handle long polling
+                return long_poll_alert(alert.title, alert.message, alert.period)
+
             return JsonResponse({'alert_id': alert.id})
+
     else:
         form = AlertForm()
 
+    # Render the appropriate template based on the connection type
+    if connection_type == 'websocket':
+        return render(request, 'alerts/alerts_websocket.html', {'form': form})
+    elif connection_type == 'push':
+        return render(request, 'alerts/alerts_push.html', {'form': form})
+    elif connection_type == 'long_polling':
+        return render(request, 'alerts/alerts_long_polling.html', {'form': form})
+
+
+def long_poll_alert(title, message, period):
+    # Simulate long polling by waiting for a certain period
+    time.sleep(period)  # Wait for the specified period before responding
+
+    # Send the alert data back as a response
+    return JsonResponse({
+        'status': 'success',
+        'title': title,
+        'message': message,
+        'period': period
+    })
+
+
+@login_required
+def long_polling_view(request):
+    # Logic to fetch the latest alerts for the user
     alerts = Alert.objects.filter(user=request.user)
-    alerts_data = [{'id': alert.id, 'title': alert.title, 'message': alert.message, 'period': alert.period} for alert in
-                   alerts]
-    return render(request, 'alerts/alerts.html', {'form': form, 'alerts': alerts_data})
+    alerts_data = [{'title': alert.title, 'message': alert.message, 'period': alert.period} for alert in alerts]
+
+    if alerts_data:
+        return JsonResponse(alerts_data, safe=False)
+    else:
+        return JsonResponse({'message': 'No alerts available'}, status=204)  # No content
+
+
+def send_push_notification(title, message, period):
+    # Implement your push notification logic here
+    url = "https://fcm.googleapis.com/v1/projects/YOUR_PROJECT_ID/messages:send"  # Use your project ID
+    headers = {
+        "Authorization": "Bearer YOUR_ACCESS_TOKEN",  # Use the access token from your service account
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "message": {
+            "token": "DEVICE_REGISTRATION_TOKEN",  # Replace with the device token you want to send the notification to
+            "notification": {
+                "title": title,
+                "body": message
+            },
+            "data": {
+                "period": period
+            }
+        }
+    }
+
+    response = requests.post(url, headers=headers, json=payload)
+    if response.status_code == 200:
+        print("Push notification sent successfully.")
+    else:
+        print("Failed to send push notification:", response.content)
 
 
 @login_required
@@ -81,18 +187,3 @@ def delete_alert(request, alert_id):
         return JsonResponse({'status': 'success'})
     except Alert.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'Alert not found.'}, status=404)
-
-
-@login_required
-def update_user_preference(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        notification_method = data.get('notification_method')
-        polling_period = data.get('polling_period', 5)  # Default to 5 if not provided
-
-        user_pref, created = UserPreference.objects.get_or_create(user=request.user)
-        user_pref.notification_method = notification_method
-        user_pref.polling_period = polling_period
-        user_pref.save()
-
-        return JsonResponse({'status': 'success'})

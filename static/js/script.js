@@ -34,7 +34,7 @@ function createAlert(title, message, period) {
             'Content-Type': 'application/json',
             'X-CSRFToken': getCSRFToken()
         },
-        body: JSON.stringify({ title, message, period })
+        body: JSON.stringify({ title, message, period, user })
     }).then(response => {
         hideLoadingSpinner(); // Hide spinner when request completes
         return response.json();
@@ -92,6 +92,7 @@ function deleteAlert(alertId) {
             console.error("Error deleting alert:", error);
         });
 }
+
 
 // Firebase Messaging Setup
 // Import the functions you need from the SDKs you need

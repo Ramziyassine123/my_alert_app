@@ -1,12 +1,15 @@
 from django.urls import path
-from alerts import views
+from .views import alerts_view, connection_type_view, login_view, logout_view, delete_alert, register, index,\
+    long_polling_view
+
 
 urlpatterns = [
-    path('', views.index, name='index'),  # homepage
-    path('register/', views.register, name='register'),  #
-    path('login/', views.login_view, name='login'),
-    path('logout/', views.logout_view, name='logout'),
-    path('alerts/', views.alerts_view, name='alerts'),
-    path('alerts/delete/<int:alert_id>/', views.delete_alert, name='delete_alert'),
-    path('user/preferences/', views.update_user_preference, name='update_user_preferences'),
+    path('', index, name='index'),  # homepage
+    path('register/', register, name='register'),
+    path('login/', login_view, name='login'),  # URL for the login view
+    path('logout/', logout_view, name='logout'),
+    path('alerts/', alerts_view, name='alerts'),
+    path('connection-type/', connection_type_view, name='connection_type'),
+    path('alerts/delete/<int:alert_id>/', delete_alert, name='delete_alert'),
+    path('alerts/poll/', long_polling_view, name='long_polling'),  # New URL for long polling
 ]

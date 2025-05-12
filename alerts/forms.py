@@ -1,14 +1,8 @@
-# alerts/forms.py
 from django import forms
-from .models import Alert
+from .models import Alert  # Import your Alert model
 
 
 class AlertForm(forms.ModelForm):
     class Meta:
         model = Alert
-        fields = ['title', 'message', 'period']
-        widgets = {
-            'title': forms.TextInput(attrs={'placeholder': 'Alert Title', 'required': True}),
-            'message': forms.Textarea(attrs={'placeholder': 'Alert Message', 'required': True}),
-            'period': forms.NumberInput(attrs={'min': 1, 'required': True}),
-        }
+        fields = ['title', 'message', 'period']  # Include all necessary fields from django import forms

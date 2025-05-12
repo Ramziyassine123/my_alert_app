@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <title>Push Notifications Alerts</title>
+</head>
+<body>
+<h1>Push Notifications Alerts</h1>
+
+<h2>Create New Alert</h2>
+<form id="alert-form" method="post" action="{% url 'alerts' %}">
+    {% csrf_token %}
+    {{ form.as_p }}  <!-- Render the form fields -->
+    <button type="submit">Create Alert</button>
+</form>
+
+<h2>Your Alerts</h2>
+<div id="alerts-list"></div>
+
+<div id="alert-status"></div>
+
+<script>
+    // AJAX form submission
+    $('#alert-form').on('submit', function(event) {
+        event.preventDefault();  // Prevent default form submission
+
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: $(this).serialize(),  // Serialize form data
+            success: function(response) {
+                $('#alert-status').text('Alert created successfully! ID: ' + response.alert_id);
+                $('#alert-form')[0].reset();  // Reset the form
+            },
+            error: function(xhr) {
+                $('#alert-status').text('Error creating alert: ' + xhr.responseText);
+            }
+        });
+    });
+
+    // Here you would implement the logic to receive push notifications
+    // This typically involves setting up Firebase Cloud Messaging (FCM)
+</script>
+
+</body>
+</html>
