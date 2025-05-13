@@ -1,3 +1,5 @@
+#settings.py
+
 import os
 from pathlib import Path
 
@@ -10,7 +12,7 @@ SECRET_KEY = 'django-insecure-feq_s^sb)=%@_0!v99iy(8vzypq41jik4f^#7wzqa0nyd$nru7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition

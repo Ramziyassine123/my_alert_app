@@ -5,13 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'js/script.js' %}"></script> <!-- Include the unified JS file -->
     <title>WebSocket Alerts</title>
 </head>
 <body>
 <h1>WebSocket Alerts</h1>
 
 <h2>Create New Alert</h2>
-<form id="alert-form" method="post" action="{% url 'alerts' %}">
+<form id="alert-form" method="post" action="{% url 'alerts_websocket' %}">
     {% csrf_token %}
     {{ form.as_p }}  <!-- Render the form fields -->
     <button type="submit">Create Alert</button>
@@ -22,43 +24,11 @@
 
 <div id="alert-status"></div>
 
+<div id="loading-spinner" style="display: none;">Loading...</div> <!-- Loading spinner -->
+
 <script>
-    // AJAX form submission
-    $('#alert-form').on('submit', function(event) {
-        event.preventDefault();  // Prevent default form submission
-
-        $.ajax({
-            type: 'POST',
-            url: $(this).attr('action'),
-            data: $(this).serialize(),  // Serialize form data
-            success: function(response) {
-                $('#alert-status').text('Alert created successfully! ID: ' + response.alert_id);
-                $('#alert-form')[0].reset();  // Reset the form
-            },
-            error: function(xhr) {
-                $('#alert-status').text('Error creating alert: ' + xhr.responseText);
-            }
-        });
-    });
-
     // WebSocket connection for alerts
-    const alertSocket = new WebSocket(
-        'ws://' + window.location.host + '/ws/alerts/'
-    );
-
-    alertSocket.onmessage = function(e) {
-        const data = JSON.parse(e.data);
-        const title = data.title;
-        const message = data.message;
-        const period = data.period;
-
-        // Display the alert message
-        $('#alerts-list').append(`<div><strong>${title}</strong>: ${message} (Period: ${period} seconds)</div>`);
-    };
-
-    alertSocket.onclose = function(e) {
-        console.error('WebSocket closed unexpectedly');
-    };
+    connectWebSocket(); // Call the function to establish WebSocket connection
 </script>
 
 </body>

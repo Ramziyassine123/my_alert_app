@@ -187,3 +187,7 @@ def delete_alert(request, alert_id):
         return JsonResponse({'status': 'success'})
     except Alert.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'Alert not found.'}, status=404)
+        
+
+def alerts_websocket_view(request):
+    return render(request, 'alerts/alerts_websocket.html')

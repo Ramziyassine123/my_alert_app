@@ -9,7 +9,7 @@
 </head>
 <body>
 <h1>Select Connection Type</h1>
-<form method="post">
+<form method="post" id="connection-form">
     {% csrf_token %}
     <label>
         <input type="radio" name="connection_type" value="long_polling" required>
@@ -25,5 +25,23 @@
     </label><br>
     <button type="submit">Submit</button>
 </form>
+
+<script>
+    document.getElementById('connection-form').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent default form submission
+        const connectionType = document.querySelector('input[name="connection_type"]:checked').value;
+
+        if (connectionType === 'websocket') {
+            // Redirect to the WebSocket alerts page
+            window.location.href = "{% url 'alerts_websocket' %}"; // Adjust the URL name as necessary
+        } else {
+            // Handle other connection types here (e.g., long polling, push notifications)
+            alert('Connection type selected: ' + connectionType);
+            // You can redirect to the respective pages for long polling and push notifications if needed.
+        }
+    });
+</script>
 </body>
 </html>
+
+
