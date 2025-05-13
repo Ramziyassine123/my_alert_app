@@ -1,3 +1,15 @@
+
+// Initial fetch of alerts when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    const alertForm = document.getElementById('alert-form');
+    if (alertForm) {
+        alertForm.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+        });
+    }
+    connectWebSocket(); // Establish WebSocket connection
+});
+
 // Function to show the loading spinner
 function showLoadingSpinner() {
     document.getElementById('loading-spinner').style.display = 'block';
@@ -24,56 +36,7 @@ function getCSRFToken() {
     return cookieValue;
 }
 
-// Function to create an alert
-function createAlert(form) {
-    showLoadingSpinner(); // Show spinner when starting the request
-    const formData = new FormData(form);
-    fetch(form.action, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCSRFToken()
-        },
-        body: formData
-    }).then(response => {
-        hideLoadingSpinner(); // Hide spinner when request completes
-        return response.json();
-    }).then(data => {
-        if (data.alert_id) {
-            document.getElementById('alert-status').innerText = 'Alert created successfully! ID: ' + data.alert_id;
-            form.reset(); // Reset the form
-            fetchAlerts(); // Refresh the alert list
-        }
-    }).catch(error => {
-        hideLoadingSpinner(); // Hide spinner in case of error
-        console.error("Error creating alert:", error);
-    });
-}
 
-// Function to fetch and display alerts
-function fetchAlerts() {
-    showLoadingSpinner(); // Show spinner when starting the request
-    fetch('/alerts_websocket/')
-        .then(response => response.json())
-        .then(data => {
-            hideLoadingSpinner(); // Hide spinner when request completes
-            const alertsList = document.getElementById('alerts-list');
-            alertsList.innerHTML = '';  // Clear existing alerts
-            if (data.alerts) {
-                data.alerts.forEach(function(alert) {
-                    alertsList.innerHTML += `
-                        <div>
-                            <strong>${alert.title}</strong>: ${alert.message} (Period: ${alert.period} seconds)
-                            <button onclick="deleteAlert(${alert.id})">Delete Alert</button>
-                        </div>
-                    `;
-                });
-            }
-        })
-        .catch(error => {
-            hideLoadingSpinner(); // Hide spinner in case of error
-            console.error("Failed to fetch alerts:", error);
-        });
-}
 
 // Function to delete an alert
 function deleteAlert(alertId) {
@@ -99,7 +62,7 @@ function deleteAlert(alertId) {
 
 // Function to establish a WebSocket connection
 function connectWebSocket() {
-    const socket = new WebSocket('ws://' + window.location.host + '/alerts_websocket/');
+    const socket = new WebSocket('ws://localhost:6789');
 
     socket.onopen = function(e) {
         console.log("WebSocket connection established.");
@@ -121,15 +84,4 @@ function connectWebSocket() {
     };
 }
 
-// Initial fetch of alerts when the page loads
-document.addEventListener('DOMContentLoaded', function() {
-    const alertForm = document.getElementById('alert-form');
-    if (alertForm) {
-        alertForm.addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent default form submission
-            createAlert(alertForm); // Call createAlert function
-        });
-    }
-    fetchAlerts(); // Fetch existing alerts
-    connectWebSocket(); // Establish WebSocket connection
-});
+

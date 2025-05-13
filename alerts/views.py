@@ -23,7 +23,7 @@ def connection_type_view(request):
         user_profile.connection_type = connection_type
         user_profile.save()
 
-        return redirect('alerts')  # Redirect to the alerts view after selection
+        return redirect('alerts_websocket')  # Redirect to the alerts view after selection
 
     return render(request, 'connection_type.html')
 
