@@ -13,8 +13,8 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
-// API endpoints
-const API_BASE_URL = 'http://localhost:8000/api';
+// API endpoints - Updated for new port configuration
+const API_BASE_URL = 'http://localhost:8001/api';  // Push server now on 8001
 const REGISTER_TOKEN_URL = `${API_BASE_URL}/register-token/`;
 const SEND_SEQUENTIAL_URL = `${API_BASE_URL}/send-sequential/`;
 

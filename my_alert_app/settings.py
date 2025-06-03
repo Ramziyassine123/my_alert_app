@@ -1,5 +1,4 @@
-# settings.py
-
+# my_alert_app/settings.py - UPDATED FOR PORT 8000
 import os
 from pathlib import Path
 
@@ -12,10 +11,9 @@ SECRET_KEY = 'django-insecure-feq_s^sb)=%@_0!v99iy(8vzypq41jik4f^#7wzqa0nyd$nru7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -41,13 +39,16 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'my_alert_app.urls'
 
+# CORS settings - Allow connections to all server ports
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
-    # Add other origins as needed
+    "http://localhost:8001",  # Push server
+    "http://localhost:8002",  # Long polling server
+    "http://localhost:6789",  # WebSocket server
+    "http://127.0.0.1:8001",
+    "http://127.0.0.1:8002",
+    "http://127.0.0.1:6789",
 ]
-
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = True  # For development
 
 TEMPLATES = [
     {
@@ -69,8 +70,6 @@ WSGI_APPLICATION = 'my_alert_app.wsgi.application'
 ASGI_APPLICATION = 'my_alert_app.asgi.application'
 
 # Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -79,8 +78,6 @@ DATABASES = {
 }
 
 # Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -97,33 +94,23 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Internationalization
-# https://docs.djangoproject.com/en/4.2/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-
 STATICFILES_DIRS = [
-    BASE_DIR / "static",  # Your existing static directory
-    BASE_DIR,  # Add this to serve files from root
+    BASE_DIR / "static",
+    BASE_DIR,  # For firebase-messaging-sw.js at root
 ]
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Channels configuration
+# Channels configuration (for WebSocket)
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',

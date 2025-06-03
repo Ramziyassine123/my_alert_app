@@ -3,53 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <title>Select Connection Type</title>
+    <title>Choose Alert Method</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            font-weight: 300;
+        }
+
+        .method-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .method-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .method-card:hover {
+            border-color: #007bff;
+            background: #e7f1ff;
+            transform: translateY(-5px);
+        }
+
+        .method-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .method-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .method-description {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .port-info {
+            font-size: 0.8rem;
+            color: #999;
+            font-weight: 500;
+        }
+
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 15px;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+            color: white;
+        }
+
+        .logout-link {
+            margin-top: 30px;
+        }
+
+        .logout-link a {
+            color: #666;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .logout-link a:hover {
+            color: #333;
+        }
+    </style>
 </head>
 <body>
-<h1>Select Connection Type</h1>
-<form method="post" id="connection-form">
-    {% csrf_token %}
-    <label>
-        <input type="radio" name="connection_type" value="long_polling" required>
-        HTTP Long Polling
-    </label><br>
-    <label>
-        <input type="radio" name="connection_type" value="websocket" required>
-        WebSockets
-    </label><br>
-    <label>
-        <input type="radio" name="connection_type" value="push" required>
-        Firebase Push Notifications
-    </label><br>
-    <button type="submit">Submit</button>
-</form>
+<div class="container">
+    <h1>🚨 Choose Alert Method</h1>
+    <p>Select how you want to receive alerts. Each method runs on a different server port.</p>
 
-<script>
-    document.getElementById('connection-form').addEventListener('submit', function(event) {
-        event.preventDefault(); // Prevent default form submission
-        const connectionType = document.querySelector('input[name="connection_type"]:checked').value;
+    <form method="post">
+        {% csrf_token %}
+        <div class="method-grid">
+            <div class="method-card" onclick="document.getElementById('push').checked=true; this.closest('form').submit();">
+                <div class="method-icon">🔔</div>
+                <div class="method-title">Push Notifications</div>
+                <div class="method-description">Real-time Firebase push notifications</div>
+                <div class="port-info">Server: Port 8001</div>
+                <input type="radio" id="push" name="connection_type" value="push" style="display: none;">
+            </div>
 
-        if (connectionType === 'websocket') {
-            // Redirect to the WebSocket alerts page
-            window.location.href = "{% url 'alerts_websocket' %}"; // Adjust the URL name as necessary
-            //alert('Connection type selected: ' + connectionType);
-        } else if (connectionType === 'long_polling') {
-            // Handle other connection types here (e.g., long polling, push notifications)
+            <div class="method-card" onclick="document.getElementById('longpolling').checked=true; this.closest('form').submit();">
+                <div class="method-icon">🔄</div>
+                <div class="method-title">Long Polling</div>
+                <div class="method-description">HTTP long polling for alerts</div>
+                <div class="port-info">Server: Port 8002</div>
+                <input type="radio" id="longpolling" name="connection_type" value="long_polling" style="display: none;">
+            </div>
 
-            window.location.href = "{% url 'alerts_longpolling' %}"; // Adjust the URL name as necessary
-            // You can redirect to the respective pages for long polling and push notifications if needed.
+            <div class="method-card" onclick="document.getElementById('websocket').checked=true; this.closest('form').submit();">
+                <div class="method-icon">⚡</div>
+                <div class="method-title">WebSocket</div>
+                <div class="method-description">Real-time WebSocket connection</div>
+                <div class="port-info">Server: Port 6789</div>
+                <input type="radio" id="websocket" name="connection_type" value="websocket" style="display: none;">
+            </div>
+        </div>
+    </form>
 
-        } else if (connectionType === 'push') {
-            // Handle other connection types here (e.g., long polling, push notifications)
-            alert('Connection type selected: ' + connectionType);
-            window.location.href = "{% url 'alerts_push' %}"; // Adjust the URL name as necessary
-            // You can redirect to the respective pages for long polling and push notifications if needed.
-    }
-    });
-</script>
+    <div class="logout-link">
+        <a href="{% url 'logout' %}">Logout</a>
+    </div>
+</div>
 </body>
 </html>
-
-
