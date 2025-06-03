@@ -17,11 +17,13 @@
     <content url="file://$MODULE_DIR$" />
     <orderEntry type="jdk" jdkName="Python 3.8 (my_alert_app)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="jquery-3.6.0" level="application" />
-    <orderEntry type="library" name="@types/firebase-client" level="application" />
-    <orderEntry type="library" name="@types/firebase-token-generator" level="application" />
     <orderEntry type="library" name="firebase-app" level="application" />
     <orderEntry type="library" name="firebase-messaging" level="application" />
+    <orderEntry type="library" name="@types/firebase-client" level="application" />
+    <orderEntry type="library" name="firebase-messaging-compat" level="application" />
+    <orderEntry type="library" name="jquery-3.6.0" level="application" />
+    <orderEntry type="library" name="@types/firebase-token-generator" level="application" />
+    <orderEntry type="library" name="firebase-app-compat" level="application" />
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Django" />

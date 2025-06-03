@@ -3,47 +3,354 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <title>Push Notifications Alerts</title>
+    <title>Alert Notifications</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .status {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+            background: #ddd;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.connected {
+            background: #4CAF50;
+        }
+
+        .status-indicator.disconnected {
+            background: #f44336;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .alerts-container {
+            padding: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .alert-item {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 5px solid #007bff;
+            transform: translateX(-100%);
+            opacity: 0;
+            animation: slideIn 0.5s ease-out forwards;
+            transition: all 0.3s ease;
+        }
+
+        .alert-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .alert-item.new {
+            border-left-color: #28a745;
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            animation: slideIn 0.5s ease-out forwards, highlight 2s ease-out;
+        }
+
+        @keyframes slideIn {
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes highlight {
+            0%, 100% { background: linear-gradient(135deg, #d4edda, #c3e6cb); }
+            50% { background: linear-gradient(135deg, #b8dabc, #a8d2ab); }
+        }
+
+        .alert-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .alert-title .alert-icon {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+
+        .alert-message {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .alert-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #888;
+            border-top: 1px solid #dee2e6;
+            padding-top: 10px;
+        }
+
+        .alert-time {
+            font-weight: 500;
+        }
+
+        .alert-badge {
+            background: #007bff;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        .alert-badge.new {
+            background: #28a745;
+        }
+
+        .no-alerts {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 40px;
+        }
+
+        .controls {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            background: #f8f9fa;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        .btn.danger {
+            background: #dc3545;
+        }
+
+        .btn.danger:hover {
+            background: #c82333;
+        }
+
+        .btn.success {
+            background: #28a745;
+        }
+
+        .btn.success:hover {
+            background: #218838;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .alert-meta {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+
+        .debug-info {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px;
+            font-size: 0.8rem;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
-<h1>Push Notifications Alerts</h1>
+<div class="container">
+    <div class="header">
+        <h1>🚨 Alert Notifications</h1>
+        <p>Real-time Firebase Push Notifications</p>
+    </div>
 
-<h2>Create New Alert</h2>
-<form id="alert-form" method="post" action="{% url 'alerts' %}">
-    {% csrf_token %}
-    {{ form.as_p }}  <!-- Render the form fields -->
-    <button type="submit">Create Alert</button>
-</form>
+    <div class="status">
+        <span class="status-indicator" id="statusIndicator"></span>
+        <span id="statusText">Initializing...</span>
+    </div>
 
-<h2>Your Alerts</h2>
-<div id="alerts-list"></div>
+    <div class="alerts-container" id="alertsContainer">
+        <div class="no-alerts" id="noAlertsMessage">
+            <p>No alerts received yet. Waiting for notifications...</p>
+        </div>
+    </div>
 
-<div id="alert-status"></div>
+    <div class="controls">
+        <button class="btn" onclick="requestNotificationPermission()">Enable Notifications</button>
+        <button class="btn success" onclick="testConnection()">Test Connection</button>
+        <button class="btn danger" onclick="clearAlerts()">Clear All</button>
+    </div>
 
+    <div class="debug-info" id="debugInfo">
+        <strong>Debug Info:</strong><br>
+        <span id="debugText">Initializing...</span>
+    </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-messaging-compat.js"></script>
+
+<!-- Custom JavaScript -->
 <script>
-    // AJAX form submission
-    $('#alert-form').on('submit', function(event) {
-        event.preventDefault();  // Prevent default form submission
+    // Add debug function and test connection function
+    function updateDebugInfo(message) {
+        const debugText = document.getElementById('debugText');
+        const timestamp = new Date().toLocaleTimeString();
+        debugText.innerHTML += `<br>[${timestamp}] ${message}`;
+    }
 
-        $.ajax({
-            type: 'POST',
-            url: $(this).attr('action'),
-            data: $(this).serialize(),  // Serialize form data
-            success: function(response) {
-                $('#alert-status').text('Alert created successfully! ID: ' + response.alert_id);
-                $('#alert-form')[0].reset();  // Reset the form
-            },
-            error: function(xhr) {
-                $('#alert-status').text('Error creating alert: ' + xhr.responseText);
+    async function testConnection() {
+        updateDebugInfo('Testing server connection...');
+        try {
+            const response = await fetch('http://localhost:8000/api/test-alert/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({})
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                updateDebugInfo('✅ Test alert sent successfully');
+
+                // Show detailed result
+                if (data.result) {
+                    if (data.result.success) {
+                        updateDebugInfo(`✅ Firebase result: ${data.result.success_count} sent, ${data.result.failure_count} failed`);
+                    } else {
+                        updateDebugInfo(`❌ Firebase error: ${data.result.error}`);
+                        console.error('Firebase error details:', data.result);
+                    }
+                }
+                console.log('Test result:', data);
+            } else {
+                const errorText = await response.text();
+                updateDebugInfo('❌ Server error: ' + response.status);
+                console.error('Test failed:', errorText);
             }
-        });
-    });
+        } catch (error) {
+            updateDebugInfo('❌ Connection failed: ' + error.message);
+            console.error('Test connection failed:', error);
+        }
+    }
 
-    // Here you would implement the logic to receive push notifications
-    // This typically involves setting up Firebase Cloud Messaging (FCM)
+    // Check if we need to update VAPID key
+    function checkVAPIDKey() {
+        const scriptContent = document.querySelector('script[src*="scriptpush.js"]');
+        if (scriptContent) {
+            fetch('/static/js/scriptpush.js')
+                .then(response => response.text())
+                .then(content => {
+                    if (content.includes('YOUR_VAPID_KEY_HERE')) {
+                        updateDebugInfo('⚠️ VAPID key placeholder detected - please update with real key');
+                    } else {
+                        updateDebugInfo('✅ VAPID key appears to be set');
+                    }
+                })
+                .catch(() => {
+                    updateDebugInfo('ℹ️ Could not check VAPID key automatically');
+                });
+        }
+    }
+
+    // Run VAPID check when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(checkVAPIDKey, 1000);
+    });
 </script>
+
+{% load static %}
+<script src="{% static 'js/scriptpush.js' %}"></script>
 
 </body>
 </html>

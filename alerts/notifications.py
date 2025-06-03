@@ -1,4 +1,4 @@
-#notifications
+# notifications.py
 from pyfcm import FCMNotification
 
 

@@ -1,17 +1,15 @@
-#urls.py
-
+# alerts/urls.py
 from django.urls import path
-from .views import connection_type_view, login_view, logout_view, delete_alert, register, index,\
-    long_polling_view, alerts_websocket_view
-
+from . import views
 
 urlpatterns = [
-    path('', index, name='index'),  # homepage
-    path('register/', register, name='register'),
-    path('login/', login_view, name='login'),  # URL for the login view
-    path('logout/', logout_view, name='logout'),
-    path('connection-type/', connection_type_view, name='connection_type'),
-    path('alerts/delete/<int:alert_id>/', delete_alert, name='delete_alert'),
-    path('alerts/poll/', long_polling_view, name='long_polling'),  # New URL for long polling
-    path('alerts/websocket/', alerts_websocket_view, name='alerts_websocket'),  # New URL for WebSocket alerts
+    path('', views.index, name='index'),
+    path('register/', views.register, name='register'),
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
+    path('connection-type/', views.connection_type_view, name='connection_type'),
+    path('alerts/poll/', views.alerts_longpolling_view, name='alerts_longpolling'),
+    path('alerts/websocket/', views.alerts_websocket_view, name='alerts_websocket'),
+    path('alerts/push/', views.alerts_push_view, name='alerts_push'),  # This should work now
 ]
+

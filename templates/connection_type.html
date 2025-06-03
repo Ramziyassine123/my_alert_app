@@ -34,11 +34,19 @@
         if (connectionType === 'websocket') {
             // Redirect to the WebSocket alerts page
             window.location.href = "{% url 'alerts_websocket' %}"; // Adjust the URL name as necessary
-        } else {
+            //alert('Connection type selected: ' + connectionType);
+        } else if (connectionType === 'long_polling') {
+            // Handle other connection types here (e.g., long polling, push notifications)
+
+            window.location.href = "{% url 'alerts_longpolling' %}"; // Adjust the URL name as necessary
+            // You can redirect to the respective pages for long polling and push notifications if needed.
+
+        } else if (connectionType === 'push') {
             // Handle other connection types here (e.g., long polling, push notifications)
             alert('Connection type selected: ' + connectionType);
+            window.location.href = "{% url 'alerts_push' %}"; // Adjust the URL name as necessary
             // You can redirect to the respective pages for long polling and push notifications if needed.
-        }
+    }
     });
 </script>
 </body>
