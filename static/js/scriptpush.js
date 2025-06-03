@@ -1,4 +1,4 @@
-// Firebase configuration - Replace with your project's config
+// Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyD1C5ob3B7L2N57vrlC-3siYRMwUgGLL7M",
     authDomain: "myalertappproject.firebaseapp.com",
@@ -13,10 +13,10 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
-// API endpoints - Server runs on port 8000, client on 8001
+// API endpoints
 const API_BASE_URL = 'http://localhost:8000/api';
 const REGISTER_TOKEN_URL = `${API_BASE_URL}/register-token/`;
-const GET_ALERTS_URL = `${API_BASE_URL}/alerts/`;
+const SEND_SEQUENTIAL_URL = `${API_BASE_URL}/send-sequential/`;
 
 // DOM elements
 const statusIndicator = document.getElementById('statusIndicator');
@@ -32,9 +32,7 @@ let alertCounter = 0;
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Alert Handler initialized');
 
-    // Register service worker first
     registerServiceWorker().then(() => {
-        // Don't automatically request permission - wait for user action
         loadExistingAlerts();
         updateStatus('disconnected', 'Click "Enable Notifications" to start');
     });
@@ -65,7 +63,6 @@ async function initializeFirebaseMessaging() {
     try {
         updateStatus('disconnected', 'Requesting notification permission...');
 
-        // Request notification permission (must be called from user action)
         const permission = await Notification.requestPermission();
         if (permission === 'granted') {
             console.log('Notification permission granted');
@@ -85,10 +82,8 @@ async function initializeFirebaseMessaging() {
  */
 async function setupMessaging() {
     try {
-        // IMPORTANT: Replace with your actual VAPID key from Firebase Console
-        // Go to Firebase Console > Project Settings > Cloud Messaging > Web configuration
         const token = await messaging.getToken({
-            vapidKey: 'BE6ICAm5uvt9ZjqJ9CkLf6r8MMwFgNA4BxW_g0Y9mQ2tpKc3X93N3QFnq3X0fVTLEMTvpgfh9Z5lBcg8qLmMZcQ' // Replace with actual VAPID key
+            vapidKey: 'BE6ICAm5uvt9ZjqJ9CkLf6r8MMwFgNA4BxW_g0Y9mQ2tpKc3X93N3QFnq3X0fVTLEMTvpgfh9Z5lBcg8qLmMZcQ'
         });
 
         if (token) {
@@ -153,6 +148,8 @@ function handleNotification(payload) {
         message: notification.body || 'No message',
         timestamp: new Date(),
         alertIndex: data.alert_index || null,
+        sequencePosition: data.sequence_position || null,
+        totalAlerts: data.total_alerts || null,
         isNew: true
     };
 
@@ -182,17 +179,26 @@ function handleNotification(payload) {
  */
 function displayAlert(alert) {
     // Hide no alerts message
-    noAlertsMessage.style.display = 'none';
+    if (noAlertsMessage) {
+        noAlertsMessage.style.display = 'none';
+    }
 
     // Create alert element
     const alertElement = document.createElement('div');
     alertElement.className = `alert-item ${alert.isNew ? 'new' : ''}`;
     alertElement.id = `alert-${alert.id}`;
 
+    // Build sequence info if available
+    let sequenceInfo = '';
+    if (alert.sequencePosition && alert.totalAlerts) {
+        sequenceInfo = `<span class="sequence-info">(${alert.sequencePosition}/${alert.totalAlerts})</span>`;
+    }
+
     alertElement.innerHTML = `
         <div class="alert-title">
             <span class="alert-icon">${getAlertIcon(alert.title)}</span>
             ${escapeHtml(alert.title)}
+            ${sequenceInfo}
         </div>
         <div class="alert-message">
             ${escapeHtml(alert.message)}
@@ -238,8 +244,8 @@ function showBrowserNotification(alert) {
     if (Notification.permission === 'granted') {
         const notification = new Notification(alert.title, {
             body: alert.message,
-            icon: '/static/icon-192x192.png', // Add your icon path
-            badge: '/static/badge-72x72.png', // Add your badge path
+            icon: '/static/icon-192x192.png',
+            badge: '/static/badge-72x72.png',
             tag: `alert-${alert.id}`,
             requireInteraction: true
         });
@@ -249,26 +255,14 @@ function showBrowserNotification(alert) {
             notification.close();
         };
 
-        // Auto close after 10 seconds
         setTimeout(() => notification.close(), 10000);
     }
 }
 
 /**
- * Load existing alerts from server
+ * Load existing alerts from local storage
  */
-async function loadExistingAlerts() {
-    try {
-        const response = await fetch(GET_ALERTS_URL);
-        if (response.ok) {
-            const data = await response.json();
-            console.log('Loaded alerts from server:', data);
-        }
-    } catch (error) {
-        console.error('Error loading alerts:', error);
-    }
-
-    // Load from local storage
+function loadExistingAlerts() {
     loadAlertsFromStorage();
 }
 
@@ -315,8 +309,10 @@ function loadAlertsFromStorage() {
  * Update connection status
  */
 function updateStatus(status, message) {
-    statusIndicator.className = `status-indicator ${status}`;
-    statusText.textContent = message;
+    if (statusIndicator && statusText) {
+        statusIndicator.className = `status-indicator ${status}`;
+        statusText.textContent = message;
+    }
 }
 
 /**
@@ -333,6 +329,36 @@ async function requestNotificationPermission() {
 }
 
 /**
+ * Send sequential alerts
+ */
+async function sendSequentialAlerts() {
+    try {
+        const delay = document.getElementById('delayInput')?.value || 3;
+
+        const response = await fetch(SEND_SEQUENTIAL_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ delay: parseInt(delay) })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log('Sequential alerts started:', data);
+            alert(`Started sending ${data.total_alerts} alerts with ${data.delay_seconds}s delay between each`);
+        } else {
+            const errorText = await response.text();
+            console.error('Failed to start sequential alerts:', errorText);
+            alert('Failed to start sequential alerts');
+        }
+    } catch (error) {
+        console.error('Error starting sequential alerts:', error);
+        alert('Error starting sequential alerts');
+    }
+}
+
+/**
  * Clear all alerts
  */
 function clearAlerts() {
@@ -340,8 +366,10 @@ function clearAlerts() {
         receivedAlerts = [];
         alertCounter = 0;
         alertsContainer.innerHTML = '';
-        noAlertsMessage.style.display = 'block';
-        alertsContainer.appendChild(noAlertsMessage);
+        if (noAlertsMessage) {
+            noAlertsMessage.style.display = 'block';
+            alertsContainer.appendChild(noAlertsMessage);
+        }
         localStorage.removeItem('receivedAlerts');
         console.log('All alerts cleared');
     }

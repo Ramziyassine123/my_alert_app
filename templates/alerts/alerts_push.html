@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alert Notifications</title>
+    <title>Firebase Alert Notifications</title>
     <style>
         * {
             margin: 0;
@@ -70,6 +70,63 @@
             100% { opacity: 1; }
         }
 
+        .controls {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            background: #f8f9fa;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        .btn.success {
+            background: #28a745;
+        }
+
+        .btn.success:hover {
+            background: #218838;
+        }
+
+        .btn.danger {
+            background: #dc3545;
+        }
+
+        .btn.danger:hover {
+            background: #c82333;
+        }
+
+        .delay-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .delay-input input {
+            width: 60px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
         .alerts-container {
             padding: 20px;
             max-height: 600px;
@@ -126,6 +183,15 @@
             font-size: 1.5rem;
         }
 
+        .sequence-info {
+            margin-left: auto;
+            font-size: 0.9rem;
+            color: #666;
+            background: #e9ecef;
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+
         .alert-message {
             color: #666;
             line-height: 1.5;
@@ -165,47 +231,6 @@
             padding: 40px;
         }
 
-        .controls {
-            padding: 20px;
-            border-top: 1px solid #eee;
-            background: #f8f9fa;
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: background 0.3s ease;
-        }
-
-        .btn:hover {
-            background: #0056b3;
-        }
-
-        .btn.danger {
-            background: #dc3545;
-        }
-
-        .btn.danger:hover {
-            background: #c82333;
-        }
-
-        .btn.success {
-            background: #28a745;
-        }
-
-        .btn.success:hover {
-            background: #218838;
-        }
-
         /* Responsive design */
         @media (max-width: 768px) {
             .container {
@@ -217,12 +242,6 @@
                 font-size: 2rem;
             }
 
-            .alert-meta {
-                flex-direction: column;
-                gap: 10px;
-                align-items: flex-start;
-            }
-
             .controls {
                 flex-direction: column;
                 align-items: center;
@@ -232,24 +251,20 @@
                 width: 100%;
                 max-width: 200px;
             }
-        }
 
-        .debug-info {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
-            padding: 10px;
-            margin: 10px;
-            font-size: 0.8rem;
-            color: #666;
+            .alert-meta {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
         }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header">
-        <h1>🚨 Alert Notifications</h1>
-        <p>Real-time Firebase Push Notifications</p>
+        <h1>🚨 Firebase Alert System</h1>
+        <p>Real-time Push Notifications</p>
     </div>
 
     <div class="status">
@@ -257,21 +272,22 @@
         <span id="statusText">Initializing...</span>
     </div>
 
-    <div class="alerts-container" id="alertsContainer">
-        <div class="no-alerts" id="noAlertsMessage">
-            <p>No alerts received yet. Waiting for notifications...</p>
-        </div>
-    </div>
-
     <div class="controls">
         <button class="btn" onclick="requestNotificationPermission()">Enable Notifications</button>
-        <button class="btn success" onclick="testConnection()">Test Connection</button>
+
+        <div class="delay-input">
+            <label for="delayInput">Delay (seconds):</label>
+            <input type="number" id="delayInput" value="3" min="1" max="60">
+        </div>
+
+        <button class="btn success" onclick="sendSequentialAlerts()">Send All Alerts</button>
         <button class="btn danger" onclick="clearAlerts()">Clear All</button>
     </div>
 
-    <div class="debug-info" id="debugInfo">
-        <strong>Debug Info:</strong><br>
-        <span id="debugText">Initializing...</span>
+    <div class="alerts-container" id="alertsContainer">
+        <div class="no-alerts" id="noAlertsMessage">
+            <p>No alerts received yet. Enable notifications and send sequential alerts to see them appear one by one.</p>
+        </div>
     </div>
 </div>
 
@@ -280,75 +296,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-messaging-compat.js"></script>
 
 <!-- Custom JavaScript -->
-<script>
-    // Add debug function and test connection function
-    function updateDebugInfo(message) {
-        const debugText = document.getElementById('debugText');
-        const timestamp = new Date().toLocaleTimeString();
-        debugText.innerHTML += `<br>[${timestamp}] ${message}`;
-    }
-
-    async function testConnection() {
-        updateDebugInfo('Testing server connection...');
-        try {
-            const response = await fetch('http://localhost:8000/api/test-alert/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({})
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                updateDebugInfo('✅ Test alert sent successfully');
-
-                // Show detailed result
-                if (data.result) {
-                    if (data.result.success) {
-                        updateDebugInfo(`✅ Firebase result: ${data.result.success_count} sent, ${data.result.failure_count} failed`);
-                    } else {
-                        updateDebugInfo(`❌ Firebase error: ${data.result.error}`);
-                        console.error('Firebase error details:', data.result);
-                    }
-                }
-                console.log('Test result:', data);
-            } else {
-                const errorText = await response.text();
-                updateDebugInfo('❌ Server error: ' + response.status);
-                console.error('Test failed:', errorText);
-            }
-        } catch (error) {
-            updateDebugInfo('❌ Connection failed: ' + error.message);
-            console.error('Test connection failed:', error);
-        }
-    }
-
-    // Check if we need to update VAPID key
-    function checkVAPIDKey() {
-        const scriptContent = document.querySelector('script[src*="scriptpush.js"]');
-        if (scriptContent) {
-            fetch('/static/js/scriptpush.js')
-                .then(response => response.text())
-                .then(content => {
-                    if (content.includes('YOUR_VAPID_KEY_HERE')) {
-                        updateDebugInfo('⚠️ VAPID key placeholder detected - please update with real key');
-                    } else {
-                        updateDebugInfo('✅ VAPID key appears to be set');
-                    }
-                })
-                .catch(() => {
-                    updateDebugInfo('ℹ️ Could not check VAPID key automatically');
-                });
-        }
-    }
-
-    // Run VAPID check when page loads
-    document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(checkVAPIDKey, 1000);
-    });
-</script>
-
 {% load static %}
 <script src="{% static 'js/scriptpush.js' %}"></script>
 
