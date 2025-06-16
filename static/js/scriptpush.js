@@ -1,3 +1,4 @@
+
 // Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyD1C5ob3B7L2N57vrlC-3siYRMwUgGLL7M",
@@ -13,10 +14,11 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
-// API endpoints - Updated for new port configuration
-const API_BASE_URL = 'http://localhost:8001/api';  // Push server now on 8001
+// API endpoints for unified server
+const API_BASE_URL = 'http://localhost:8001/api';
 const REGISTER_TOKEN_URL = `${API_BASE_URL}/register-token/`;
 const SEND_SEQUENTIAL_URL = `${API_BASE_URL}/send-sequential/`;
+const STATS_URL = `${API_BASE_URL}/stats/`;
 
 // DOM elements
 const statusIndicator = document.getElementById('statusIndicator');
@@ -30,11 +32,11 @@ let alertCounter = 0;
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Alert Handler initialized');
+    console.log('Firebase Push Alert Handler initialized');
 
     registerServiceWorker().then(() => {
         loadExistingAlerts();
-        updateStatus('disconnected', 'Click "Enable Notifications" to start');
+        updateStatus('disconnected', 'Click "Enable Notifications" to start receiving alerts');
     });
 });
 
@@ -49,10 +51,13 @@ async function registerServiceWorker() {
             return registration;
         } catch (error) {
             console.error('Service Worker registration failed:', error);
+            updateStatus('disconnected', 'Service Worker registration failed: ' + error.message);
             throw error;
         }
     } else {
-        throw new Error('Service Worker not supported');
+        const errorMsg = 'Service Worker not supported in this browser';
+        updateStatus('disconnected', errorMsg);
+        throw new Error(errorMsg);
     }
 }
 
@@ -97,6 +102,9 @@ async function setupMessaging() {
                 handleNotification(payload);
             });
 
+            // Load server stats
+            loadServerStats();
+
         } else {
             console.log('No registration token available');
             updateStatus('disconnected', 'Failed to get FCM token');
@@ -108,7 +116,7 @@ async function setupMessaging() {
 }
 
 /**
- * Register FCM token with Django backend
+ * Register FCM token with unified Django backend
  */
 async function registerToken(token) {
     try {
@@ -127,9 +135,48 @@ async function registerToken(token) {
         } else {
             const errorText = await response.text();
             console.error('Failed to register token:', response.status, errorText);
+            updateStatus('disconnected', 'Failed to register with server');
         }
     } catch (error) {
         console.error('Error registering token:', error);
+        updateStatus('disconnected', 'Registration error: ' + error.message);
+    }
+}
+
+/**
+ * Load server statistics
+ */
+async function loadServerStats() {
+    try {
+        const response = await fetch(STATS_URL);
+        if (response.ok) {
+            const stats = await response.json();
+            showServerStats(stats);
+        }
+    } catch (error) {
+        console.log('Could not load server stats:', error);
+    }
+}
+
+/**
+ * Display server statistics
+ */
+function showServerStats(stats) {
+    const statsDiv = document.createElement('div');
+    statsDiv.className = 'server-stats';
+    statsDiv.innerHTML = `
+        <div class="stats-header">📊 Server Statistics</div>
+        <div class="stats-content">
+            <span>Active Tokens: ${stats.active_tokens}</span>
+            <span>Total Alerts Sent: ${stats.total_alerts_sent}</span>
+        </div>
+    `;
+
+    const existingStats = document.querySelector('.server-stats');
+    if (existingStats) {
+        existingStats.replaceWith(statsDiv);
+    } else if (alertsContainer && alertsContainer.parentNode) {
+        alertsContainer.parentNode.insertBefore(statsDiv, alertsContainer);
     }
 }
 
@@ -329,7 +376,7 @@ async function requestNotificationPermission() {
 }
 
 /**
- * Send sequential alerts
+ * Send sequential alerts from unified server
  */
 async function sendSequentialAlerts() {
     try {
@@ -347,14 +394,17 @@ async function sendSequentialAlerts() {
             const data = await response.json();
             console.log('Sequential alerts started:', data);
             alert(`Started sending ${data.total_alerts} alerts with ${data.delay_seconds}s delay between each`);
+
+            // Refresh stats after starting
+            setTimeout(loadServerStats, 1000);
         } else {
             const errorText = await response.text();
             console.error('Failed to start sequential alerts:', errorText);
-            alert('Failed to start sequential alerts');
+            alert('Failed to start sequential alerts: ' + errorText);
         }
     } catch (error) {
         console.error('Error starting sequential alerts:', error);
-        alert('Error starting sequential alerts');
+        alert('Error starting sequential alerts: ' + error.message);
     }
 }
 
@@ -382,10 +432,13 @@ function getAlertIcon(title) {
     const titleLower = title.toLowerCase();
     if (titleLower.includes('emergency')) return '🚨';
     if (titleLower.includes('warning')) return '⚠️';
+    if (titleLower.includes('weather')) return '🌦️';
+    if (titleLower.includes('security')) return '🔒';
+    if (titleLower.includes('traffic')) return '🚗';
+    if (titleLower.includes('system')) return '⚙️';
     if (titleLower.includes('info')) return 'ℹ️';
     if (titleLower.includes('success')) return '✅';
     if (titleLower.includes('fire')) return '🔥';
-    if (titleLower.includes('weather')) return '🌦️';
     return '📢';
 }
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firebase Alert Notifications</title>
+    <title>Firebase Push Notifications</title>
     <style>
         * {
             margin: 0;
@@ -19,16 +19,16 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             background: white;
-            border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
 
         .header {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            background: linear-gradient(135deg, #28a745, #20c997);
             color: white;
             padding: 30px;
             text-align: center;
@@ -44,6 +44,7 @@
             padding: 20px;
             text-align: center;
             border-bottom: 1px solid #eee;
+            background: #f8f9fa;
         }
 
         .status-indicator {
@@ -57,11 +58,11 @@
         }
 
         .status-indicator.connected {
-            background: #4CAF50;
+            background: #28a745;
         }
 
         .status-indicator.disconnected {
-            background: #f44336;
+            background: #dc3545;
         }
 
         @keyframes pulse {
@@ -71,7 +72,7 @@
         }
 
         .controls {
-            padding: 20px;
+            padding: 25px;
             border-bottom: 1px solid #eee;
             background: #f8f9fa;
             display: flex;
@@ -86,15 +87,19 @@
             color: white;
             border: none;
             padding: 12px 24px;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 0.9rem;
             font-weight: 500;
-            transition: background 0.3s ease;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
         }
 
         .btn:hover {
             background: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
         }
 
         .btn.success {
@@ -103,6 +108,7 @@
 
         .btn.success:hover {
             background: #218838;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
         }
 
         .btn.danger {
@@ -111,53 +117,114 @@
 
         .btn.danger:hover {
             background: #c82333;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn.secondary {
+            background: #6c757d;
+        }
+
+        .btn.secondary:hover {
+            background: #545b62;
         }
 
         .delay-input {
             display: flex;
             align-items: center;
             gap: 10px;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
         }
 
         .delay-input input {
-            width: 60px;
+            width: 70px;
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
             text-align: center;
+            font-weight: 500;
+        }
+
+        .server-stats {
+            background: white;
+            margin: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+        }
+
+        .stats-header {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #495057;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stats-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #28a745;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 5px;
         }
 
         .alerts-container {
-            padding: 20px;
-            max-height: 600px;
+            padding: 25px;
+            max-height: 500px;
             overflow-y: auto;
         }
 
         .alert-item {
             background: #f8f9fa;
             border: 1px solid #e9ecef;
-            border-radius: 10px;
+            border-radius: 12px;
             padding: 20px;
             margin-bottom: 15px;
-            border-left: 5px solid #007bff;
-            transform: translateX(-100%);
-            opacity: 0;
-            animation: slideIn 0.5s ease-out forwards;
+            border-left: 5px solid #28a745;
+            transform: translateX(0);
+            opacity: 1;
             transition: all 0.3s ease;
         }
 
         .alert-item:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
         }
 
         .alert-item.new {
             border-left-color: #28a745;
             background: linear-gradient(135deg, #d4edda, #c3e6cb);
-            animation: slideIn 0.5s ease-out forwards, highlight 2s ease-out;
+            animation: slideIn 0.5s ease-out forwards, highlight 3s ease-out;
         }
 
         @keyframes slideIn {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
             to {
                 transform: translateX(0);
                 opacity: 1;
@@ -165,35 +232,39 @@
         }
 
         @keyframes highlight {
-            0%, 100% { background: linear-gradient(135deg, #d4edda, #c3e6cb); }
-            50% { background: linear-gradient(135deg, #b8dabc, #a8d2ab); }
+            0%, 100% {
+                background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            }
+            50% {
+                background: linear-gradient(135deg, #b8dabc, #a8d2ab);
+            }
         }
 
         .alert-title {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 600;
             color: #333;
             margin-bottom: 10px;
             display: flex;
             align-items: center;
+            justify-content: space-between;
         }
 
         .alert-title .alert-icon {
             margin-right: 10px;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
         }
 
         .sequence-info {
-            margin-left: auto;
-            font-size: 0.9rem;
-            color: #666;
-            background: #e9ecef;
+            background: rgba(0, 0, 0, 0.1);
             padding: 4px 8px;
             border-radius: 12px;
+            font-size: 0.8rem;
+            color: #666;
         }
 
         .alert-message {
-            color: #666;
+            color: #555;
             line-height: 1.5;
             margin-bottom: 15px;
         }
@@ -204,38 +275,67 @@
             align-items: center;
             font-size: 0.9rem;
             color: #888;
-            border-top: 1px solid #dee2e6;
-            padding-top: 10px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            padding-top: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .alert-time {
             font-weight: 500;
         }
 
+        .alert-source {
+            background: #28a745;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
         .alert-badge {
             background: #007bff;
             color: white;
-            padding: 4px 8px;
+            padding: 4px 10px;
             border-radius: 12px;
             font-size: 0.8rem;
+            font-weight: 500;
         }
 
         .alert-badge.new {
             background: #28a745;
+            animation: pulse 2s infinite;
         }
 
         .no-alerts {
             text-align: center;
-            color: #666;
+            color: #6c757d;
             font-style: italic;
-            padding: 40px;
+            padding: 50px 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 2px dashed #dee2e6;
+        }
+
+        .no-alerts h3 {
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+        /* Hide any unified server messages */
+        .unified-server-message,
+        .server-connection-info,
+        [class*="unified"],
+        [id*="unified"] {
+            display: none !important;
         }
 
         /* Responsive design */
         @media (max-width: 768px) {
             .container {
                 margin: 10px;
-                border-radius: 10px;
+                border-radius: 15px;
             }
 
             .header h1 {
@@ -245,48 +345,152 @@
             .controls {
                 flex-direction: column;
                 align-items: center;
+                gap: 10px;
             }
 
             .btn {
                 width: 100%;
-                max-width: 200px;
+                max-width: 250px;
+            }
+
+            .delay-input {
+                width: 100%;
+                max-width: 250px;
+                justify-content: center;
             }
 
             .alert-meta {
                 flex-direction: column;
-                gap: 10px;
                 align-items: flex-start;
+                gap: 8px;
             }
+
+            .stats-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Custom Scrollbar */
+        .alerts-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .alerts-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .alerts-container::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 4px;
+        }
+
+        .alerts-container::-webkit-scrollbar-thumb:hover {
+            background: #999;
         }
     </style>
 </head>
 <body>
+
+<!-- Add this section to your alerts template -->
+<div style="border: 2px solid #007bff; padding: 15px; margin: 10px 0; background: #f8f9fa;">
+    <h4>🔧 Firebase Token for Testing</h4>
+    <button onclick="getRealToken()" style="background: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 5px;">
+        Get Real Firebase Token
+    </button>
+    <br><br>
+    <textarea id="realFirebaseToken" rows="4" cols="80" placeholder="Real Firebase token will appear here..."
+              style="width: 100%; font-family: monospace; font-size: 12px;"></textarea>
+    <br>
+    <small>Copy this token and paste it into your test configuration</small>
+</div>
+
+<script type="module">
+    // Import Firebase
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
+    import { getMessaging, getToken } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging.js';
+
+    // Your Firebase config (copy from your existing Firebase setup)
+    const firebaseConfig = {
+        apiKey: "AIzaSyD1C5ob3B7L2N57vrlC-3siYRMwUgGLL7M",
+        authDomain: "myalertappproject.firebaseapp.com",
+        projectId: "myalertappproject",
+        storageBucket: "myalertappproject.firebasestorage.app",
+        messagingSenderId: "628710969002",
+        appId: "1:628710969002:web:735611410af3e440d5cad3",
+    };
+
+    // Initialize
+    const app = initializeApp(firebaseConfig);
+    const messaging = getMessaging(app);
+
+    // Make function global
+    window.getRealToken = async function() {
+        try {
+            const permission = await Notification.requestPermission();
+
+            if (permission === 'granted') {
+                const currentToken = await getToken(messaging);
+
+                if (currentToken) {
+                    document.getElementById('realFirebaseToken').value = currentToken;
+                    console.log('Real Firebase Token:', currentToken);
+                    alert('Token ready! Copy from textarea below.');
+                } else {
+                    document.getElementById('realFirebaseToken').value = 'No token available';
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('realFirebaseToken').value = 'Error: ' + error.message;
+        }
+    }
+</script>
 <div class="container">
     <div class="header">
-        <h1>🚨 Firebase Alert System</h1>
-        <p>Real-time Push Notifications</p>
+        <h1>🔔 Firebase Push Notifications</h1>
+        <p>Real-time push notifications with background delivery</p>
     </div>
 
     <div class="status">
         <span class="status-indicator" id="statusIndicator"></span>
-        <span id="statusText">Initializing...</span>
+        <span id="statusText">Initializing Firebase...</span>
+    </div>
+
+    <div class="server-stats" id="serverStats" style="display: none;">
+        <div class="stats-header">
+            📊 Notification Statistics
+            <div style="display: flex; gap: 5px;">
+                <button onclick="refreshAlerts()" class="btn" style="padding: 5px 10px; font-size: 0.8rem;">
+                    🔄 Refresh Alerts
+                </button>
+                <button onclick="resetStats()" class="btn danger" style="padding: 5px 10px; font-size: 0.8rem;">
+                    🗑️ Reset Stats
+                </button>
+            </div>
+        </div>
+        <div class="stats-content" id="statsContent">
+            <!-- Firebase-specific stats will be loaded here -->
+        </div>
     </div>
 
     <div class="controls">
-        <button class="btn" onclick="requestNotificationPermission()">Enable Notifications</button>
+        <button class="btn" onclick="requestNotificationPermission()">🔔 Enable Notifications</button>
 
         <div class="delay-input">
             <label for="delayInput">Delay (seconds):</label>
             <input type="number" id="delayInput" value="3" min="1" max="60">
         </div>
 
-        <button class="btn success" onclick="sendSequentialAlerts()">Send All Alerts</button>
-        <button class="btn danger" onclick="clearAlerts()">Clear All</button>
+        <button class="btn success" onclick="sendSequentialAlerts()">📤 Send All Alerts</button>
+        <button class="btn danger" onclick="clearAlerts()">🗑️ Clear All</button>
+        <a href="#" class="btn secondary" onclick="history.back()">← Back</a>
     </div>
 
     <div class="alerts-container" id="alertsContainer">
         <div class="no-alerts" id="noAlertsMessage">
-            <p>No alerts received yet. Enable notifications and send sequential alerts to see them appear one by one.</p>
+            <h3>🔔 Firebase Push Notifications</h3>
+            <p>Enable notifications and send alerts to see them appear here with Firebase push delivery.</p>
         </div>
     </div>
 </div>
@@ -295,9 +499,432 @@
 <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-messaging-compat.js"></script>
 
-<!-- Custom JavaScript -->
-{% load static %}
-<script src="{% static 'js/scriptpush.js' %}"></script>
+<script>
+    // Prevent any unified server messages from appearing
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('=== FIREBASE PUSH NOTIFICATIONS ===');
+        console.log('Method: Firebase Push Notifications');
+        console.log('====================================');
+
+        // Hide any elements that might contain unified server messages
+        const elementsToHide = document.querySelectorAll([
+            '.unified-server-message',
+            '.server-connection-info',
+            '[class*="unified"]',
+            '[id*="unified"]'
+        ].join(', '));
+
+        elementsToHide.forEach(el => {
+            el.style.display = 'none';
+        });
+
+        // Override any functions that might display unified server info
+        if (window.showUnifiedServerInfo) {
+            window.showUnifiedServerInfo = function() {
+                // Do nothing - suppress unified server info
+            };
+        }
+
+        // Clean status text periodically to remove unified server references
+        setInterval(() => {
+            const statusText = document.getElementById('statusText');
+            if (statusText) {
+                let text = statusText.textContent;
+                // Only replace specific unified server text
+                if (text.includes('🚀 Unified Alert Server')) {
+                    text = text.replace('🚀 Unified Alert Server', '');
+                }
+                if (text.includes('Port 8001 Connected to unified server providing Push, WebSocket, and Long Polling alerts')) {
+                    text = text.replace('Port 8001 Connected to unified server providing Push, WebSocket, and Long Polling alerts', '');
+                }
+                // Clean up any extra spaces and update only if changed
+                text = text.replace(/\s+/g, ' ').trim();
+                if (text !== statusText.textContent && text.length > 0) {
+                    statusText.textContent = text;
+                }
+            }
+        }, 1000);
+    });
+
+    // Load alerts from Django backend API
+    let alertsData = [];
+
+    async function loadAlertsFromAPI() {
+        try {
+            // Try to load from Django backend first
+            const response = await fetch('/api/alerts/');
+            if (response.ok) {
+                const data = await response.json();
+                alertsData = data.alerts || [];
+                console.log(`Loaded ${alertsData.length} alerts from Django backend`);
+                return alertsData;
+            } else {
+                console.warn('Could not load from Django backend, trying direct JSON file');
+                return await loadAlertsFromJSON();
+            }
+        } catch (error) {
+            console.warn('Error loading from Django backend:', error, 'Trying direct JSON file');
+            return await loadAlertsFromJSON();
+        }
+    }
+
+    async function loadAlertsFromJSON() {
+        try {
+            const response = await fetch('alerts.json');
+            if (response.ok) {
+                const data = await response.json();
+                alertsData = data.alerts || [];
+                console.log(`Loaded ${alertsData.length} alerts from alerts.json file`);
+                return alertsData;
+            } else {
+                console.warn('Could not load alerts.json, using fallback alerts');
+                return getFallbackAlerts();
+            }
+        } catch (error) {
+            console.warn('Error loading alerts.json:', error, 'Using fallback alerts');
+            return getFallbackAlerts();
+        }
+    }
+
+    function getFallbackAlerts() {
+        // Fallback alerts matching your JSON structure
+        return [
+            { title: 'Emergency Alert', message: 'This is an emergency alert requiring immediate attention.' },
+            { title: 'Weather Warning', message: 'Severe weather conditions expected in your area.' },
+            { title: 'System Maintenance', message: 'Scheduled system maintenance will begin in 30 minutes.' },
+            { title: 'Security Notice', message: 'Please update your password for enhanced security.' },
+            { title: 'Traffic Update', message: 'Heavy traffic reported on main routes. Consider alternate paths.' },
+            { title: 'Bomb Notice', message: 'Bomb Alert, please evacuate.' },
+            { title: 'Night Routine Alert', message: 'Time to do your night routine.' },
+            { title: 'Hello', message: 'Goodbye.' },
+            { title: 'Fire Alert', message: 'This is a fire alert, please evacuate the building.' }
+        ];
+    }
+
+    // Mock Firebase functions for demonstration
+    function requestNotificationPermission() {
+        const statusIndicator = document.getElementById('statusIndicator');
+        const statusText = document.getElementById('statusText');
+
+        if ('Notification' in window) {
+            Notification.requestPermission().then(permission => {
+                if (permission === 'granted') {
+                    statusIndicator.className = 'status-indicator connected';
+                    statusText.textContent = 'Firebase notifications enabled';
+                    console.log('Firebase notifications permission granted');
+                } else {
+                    statusIndicator.className = 'status-indicator disconnected';
+                    statusText.textContent = 'Notifications permission denied';
+                }
+            });
+        } else {
+            statusText.textContent = 'Notifications not supported';
+        }
+    }
+
+    async function sendSequentialAlerts() {
+        const delay = parseInt(document.getElementById('delayInput').value) || 3;
+        const alertsContainer = document.getElementById('alertsContainer');
+        const noAlertsMessage = document.getElementById('noAlertsMessage');
+
+        if (noAlertsMessage) {
+            noAlertsMessage.style.display = 'none';
+        }
+
+        // Always reload alerts to get the latest from JSON file
+        console.log('Loading latest alerts...');
+        alertsData = await loadAlertsFromAPI();
+
+        if (alertsData.length === 0) {
+            alert('No alerts found! Check your alerts.json file or Django backend.');
+            return;
+        }
+
+        console.log(`Sending ${alertsData.length} alerts with ${delay}s delay`);
+
+        // Show preview of alerts that will be sent
+        const alertTitles = alertsData.map(alert => alert.title).join(', ');
+        console.log(`Alert titles: ${alertTitles}`);
+
+        alertsData.forEach((alert, index) => {
+            setTimeout(() => {
+                createAlertElement(alert, index + 1, alertsData.length);
+            }, delay * 1000 * index);
+        });
+
+        // Show confirmation
+        const totalTime = (alertsData.length - 1) * delay;
+        alert(`Started sending ${alertsData.length} alerts with ${delay}s delay.\nTotal time: ${totalTime} seconds.`);
+    }
+
+    function createAlertElement(alert, sequence, total) {
+        const alertsContainer = document.getElementById('alertsContainer');
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert-item new';
+
+        // Get appropriate icon based on alert title
+        const icon = getAlertIcon(alert.title);
+
+        alertDiv.innerHTML = `
+            <div class="alert-title">
+                <span><span class="alert-icon">${icon}</span>${escapeHtml(alert.title)}</span>
+                <span class="sequence-info">#${sequence}${total ? ` of ${total}` : ''}</span>
+            </div>
+            <div class="alert-message">${escapeHtml(alert.message)}</div>
+            <div class="alert-meta">
+                <span class="alert-time">${new Date().toLocaleTimeString()}</span>
+                <span class="alert-source">Firebase</span>
+                <span class="alert-badge new">NEW</span>
+            </div>
+        `;
+
+        alertsContainer.appendChild(alertDiv);
+
+        // Try to show browser notification and track success/failure
+        let notificationSuccess = false;
+        if (Notification.permission === 'granted') {
+            try {
+                const notification = new Notification(alert.title, {
+                    body: alert.message,
+                    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><text y="18" font-size="18">' + icon + '</text></svg>',
+                    tag: `alert-${sequence}`,
+                    requireInteraction: false
+                });
+
+                notification.onshow = function() {
+                    console.log(`Notification #${sequence} displayed successfully`);
+                    updateNotificationStats(true); // Count as success
+                };
+
+                notification.onerror = function() {
+                    console.error(`Notification #${sequence} failed to display`);
+                    updateNotificationStats(false); // Count as failure
+                };
+
+                notificationSuccess = true;
+            } catch (error) {
+                console.error(`Error creating notification #${sequence}:`, error);
+                updateNotificationStats(false); // Count as failure
+            }
+        } else {
+            // No permission - count as failure
+            console.warn(`Notification #${sequence} not sent - permission denied`);
+            updateNotificationStats(false);
+        }
+
+        // Remove 'new' class after animation
+        setTimeout(() => {
+            alertDiv.classList.remove('new');
+            const badge = alertDiv.querySelector('.alert-badge');
+            if (badge) {
+                badge.classList.remove('new');
+                badge.textContent = `Alert #${sequence}`;
+            }
+        }, 3000);
+    }
+
+    function getAlertIcon(title) {
+        const titleLower = title.toLowerCase();
+        if (titleLower.includes('emergency')) return '🚨';
+        if (titleLower.includes('bomb')) return '💣';
+        if (titleLower.includes('fire')) return '🔥';
+        if (titleLower.includes('weather')) return '🌦️';
+        if (titleLower.includes('security')) return '🔐';
+        if (titleLower.includes('traffic')) return '🚗';
+        if (titleLower.includes('system') || titleLower.includes('maintenance')) return '⚙️';
+        if (titleLower.includes('night') || titleLower.includes('routine')) return '🌙';
+        if (titleLower.includes('hello')) return '👋';
+        return '⚠️';
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function clearAlerts() {
+        const alertsContainer = document.getElementById('alertsContainer');
+        const noAlertsMessage = document.getElementById('noAlertsMessage');
+
+        alertsContainer.innerHTML = '';
+        if (noAlertsMessage) {
+            alertsContainer.appendChild(noAlertsMessage);
+            noAlertsMessage.style.display = 'block';
+        }
+    }
+
+    // Real statistics tracking
+    let notificationStats = {
+        totalSent: 0,
+        successfulSent: 0,
+        failedSent: 0,
+        lastUpdated: null
+    };
+
+    // Load stats from localStorage on page load
+    function loadStatsFromStorage() {
+        try {
+            const savedStats = localStorage.getItem('firebaseNotificationStats');
+            if (savedStats) {
+                const parsed = JSON.parse(savedStats);
+                notificationStats = {
+                    ...notificationStats,
+                    ...parsed,
+                    lastUpdated: new Date(parsed.lastUpdated)
+                };
+            }
+        } catch (error) {
+            console.error('Error loading stats from storage:', error);
+        }
+    }
+
+    // Save stats to localStorage
+    function saveStatsToStorage() {
+        try {
+            localStorage.setItem('firebaseNotificationStats', JSON.stringify({
+                ...notificationStats,
+                lastUpdated: notificationStats.lastUpdated?.toISOString()
+            }));
+        } catch (error) {
+            console.error('Error saving stats to storage:', error);
+        }
+    }
+
+    // Update statistics when notification is sent
+    function updateNotificationStats(success = true) {
+        notificationStats.totalSent++;
+        if (success) {
+            notificationStats.successfulSent++;
+        } else {
+            notificationStats.failedSent++;
+        }
+        notificationStats.lastUpdated = new Date();
+        saveStatsToStorage();
+        loadNotificationStats(); // Refresh display
+    }
+
+    // Calculate success rate
+    function getSuccessRate() {
+        if (notificationStats.totalSent === 0) {
+            return '0.0%';
+        }
+        const rate = (notificationStats.successfulSent / notificationStats.totalSent) * 100;
+        return rate.toFixed(1) + '%';
+    }
+
+    function loadNotificationStats() {
+        const statsContent = document.getElementById('statsContent');
+        const serverStats = document.getElementById('serverStats');
+
+        // Show real stats
+        const stats = {
+            available_alerts: alertsData.length,
+            total_notifications: notificationStats.totalSent,
+            success_rate: getSuccessRate(),
+            failed_notifications: notificationStats.failedSent
+        };
+
+        if (serverStats && statsContent) {
+            serverStats.style.display = 'block';
+            statsContent.innerHTML = `
+                <div class="stat-item">
+                    <span class="stat-value">${stats.available_alerts}</span>
+                    <div class="stat-label">Available Alerts</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">${stats.total_notifications}</span>
+                    <div class="stat-label">Notifications Sent</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">${stats.success_rate}</span>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">${stats.failed_notifications}</span>
+                    <div class="stat-label">Failed Notifications</div>
+                </div>
+            `;
+        }
+
+        console.log('Real Notification Stats:', {
+            ...stats,
+            lastUpdated: notificationStats.lastUpdated
+        });
+    }
+
+    // Function to refresh alerts from source
+    async function refreshAlerts() {
+        console.log('Refreshing alerts from source...');
+        const oldCount = alertsData.length;
+        alertsData = await loadAlertsFromAPI();
+        const newCount = alertsData.length;
+
+        console.log(`Alert count changed from ${oldCount} to ${newCount}`);
+        loadNotificationStats(); // Update stats display
+
+        if (newCount !== oldCount) {
+            alert(`Alert count updated: ${newCount} alerts available (was ${oldCount})`);
+        }
+
+        return alertsData;
+    }
+
+    // Initialize alerts on page load
+    document.addEventListener('DOMContentLoaded', async function() {
+        console.log('=== FIREBASE PUSH NOTIFICATIONS ===');
+        console.log('Method: Firebase Push Notifications');
+        console.log('====================================');
+
+        // Load statistics from storage
+        loadStatsFromStorage();
+
+        // Load initial alerts
+        await loadAlertsFromAPI();
+        loadNotificationStats();
+
+        // Hide any elements that might contain unified server messages
+        const elementsToHide = document.querySelectorAll([
+            '.unified-server-message',
+            '.server-connection-info',
+            '[class*="unified"]',
+            '[id*="unified"]'
+        ].join(', '));
+
+        elementsToHide.forEach(el => {
+            el.style.display = 'none';
+        });
+
+        // Override any functions that might display unified server info
+        if (window.showUnifiedServerInfo) {
+            window.showUnifiedServerInfo = function() {
+                // Do nothing - suppress unified server info
+            };
+        }
+
+        // Clean status text periodically to remove unified server references
+        setInterval(() => {
+            const statusText = document.getElementById('statusText');
+            if (statusText) {
+                let text = statusText.textContent;
+                // Only replace specific unified server text
+                if (text.includes('🚀 Unified Alert Server')) {
+                    text = text.replace('🚀 Unified Alert Server', '');
+                }
+                if (text.includes('Port 8001 Connected to unified server providing Push, WebSocket, and Long Polling alerts')) {
+                    text = text.replace('Port 8001 Connected to unified server providing Push, WebSocket, and Long Polling alerts', '');
+                }
+                // Clean up any extra spaces and update only if changed
+                text = text.replace(/\s+/g, ' ').trim();
+                if (text !== statusText.textContent && text.length > 0) {
+                    statusText.textContent = text;
+                }
+            }
+        }, 1000);
+    });
+</script>
+
+
 
 </body>
 </html>

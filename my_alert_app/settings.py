@@ -1,4 +1,4 @@
-# my_alert_app/settings.py - UPDATED FOR PORT 8000
+# my_alert_app/settings.py
 import os
 from pathlib import Path
 
@@ -13,7 +13,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
-# Application definition
+# Application definition - AUTH APPS REMOVED
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'corsheaders',
 ]
 
+# MIDDLEWARE - AUTH MIDDLEWARE REMOVED
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -39,14 +40,10 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'my_alert_app.urls'
 
-# CORS settings - Allow connections to all server ports
+# CORS settings - Allow connections to unified server
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8001",  # Push server
-    "http://localhost:8002",  # Long polling server
-    "http://localhost:6789",  # WebSocket server
+    "http://localhost:8001",  # Unified server
     "http://127.0.0.1:8001",
-    "http://127.0.0.1:8002",
-    "http://127.0.0.1:6789",
 ]
 CORS_ALLOW_ALL_ORIGINS = True  # For development
 
@@ -77,21 +74,8 @@ DATABASES = {
     }
 }
 
-# Password validation
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
+# Password validation - REMOVED since no authentication
+AUTH_PASSWORD_VALIDATORS = []
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'
@@ -113,9 +97,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Channels configuration (for WebSocket)
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
-        },
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
     },
 }
+
+# Unified server configuration
+UNIFIED_SERVER_URL = 'http://localhost:8001'
+WEBSOCKET_SERVER_URL = 'ws://localhost:8001/ws/alerts/'

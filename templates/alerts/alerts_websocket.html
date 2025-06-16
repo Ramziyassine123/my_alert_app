@@ -5,46 +5,454 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% load static %}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="{% static 'js/scriptweb.js' %}"></script> <!-- Include the unified JS file -->
-
     <title>WebSocket Alerts</title>
 
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0; /* Light grey background */
-            color: #333; /* Dark text color */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
         }
-        #alerts-list {
-            margin: 20px;
-            padding: 10px;
-            background-color: #fff; /* White background for alerts */
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         }
-        .alert {
+
+        .page-header {
+            background: linear-gradient(135deg, #ffc107, #ff8f00);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            color: white;
             margin-bottom: 10px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #e9f7df; /* Light green background for each alert */
-            color: #2e7d32; /* Dark green text color */
+            font-size: 2.5rem;
+            font-weight: 300;
         }
-        .alert strong {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 1.1em;
+
+        .controls {
+            background: #f8f9fa;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .status-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+
+        .connection-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #6c757d;
+            animation: pulse 2s infinite;
+        }
+
+        .connection-indicator.connected {
+            background: #28a745;
+        }
+
+        .connection-indicator.disconnected {
+            background: #dc3545;
+        }
+
+        .connection-indicator.reconnecting {
+            background: #ffc107;
+        }
+
+        .alert-counter {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        .btn.danger {
+            background: #dc3545;
+        }
+
+        .btn.danger:hover {
+            background: #c82333;
+        }
+
+        .btn.secondary {
+            background: #6c757d;
+        }
+
+        .btn.secondary:hover {
+            background: #545b62;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        #alerts-list {
+            min-height: 400px;
+            max-height: 600px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            background: #f8f9fa;
+            padding: 20px;
+        }
+
+        .alert {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+            border-left: 5px solid #ffc107;
+            transform: translateX(0);
+            transition: all 0.3s ease;
+        }
+
+        .alert:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .alert.websocket-alert {
+            border-left-color: #ffc107;
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+        }
+
+        .alert.error-alert {
+            border-left-color: #dc3545;
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+        }
+
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .alert-message {
+            margin-bottom: 10px;
+            line-height: 1.5;
+            color: #555;
+        }
+
+        .alert-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #888;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            padding-top: 10px;
+        }
+
+        .alert-timestamp {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .sequence-info {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-left: 8px;
+        }
+
+        .delivery-method {
+            background: #ffc107;
+            color: #333;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .no-alerts-message {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            padding: 40px;
+            background: white;
+            border-radius: 10px;
+            border: 2px dashed #dee2e6;
+        }
+
+        .loading-spinner {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .loading-spinner div {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #ffc107;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Custom Scrollbar */
+        #alerts-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #alerts-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        #alerts-list::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 4px;
+        }
+
+        #alerts-list::-webkit-scrollbar-thumb:hover {
+            background: #999;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .page-header h1 {
+                font-size: 2rem;
+            }
+
+            .controls {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .alert-meta {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            font-weight: 500;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
+
+        .connection-status.connected {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+
+        .connection-status.disconnected {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+
+        .connection-status.reconnecting {
+            background-color: #fff3cd;
+            border-color: #ffeaa7;
+            color: #856404;
+        }
+
+        .connection-status.error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+
+        .status-icon {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        .status-text {
+            flex-grow: 1;
+        }
+
+        .status-time {
+            font-size: 12px;
+            opacity: 0.8;
         }
     </style>
 </head>
 <body>
-<h1>WebSocket Alerts</h1>
+<div class="container">
+    <div class="page-header">
+        <h1>⚡ WebSocket Alerts</h1>
+        <p>Real-time bidirectional connection for instant alert delivery</p>
+    </div>
 
-<h2>Your Alerts</h2>
+    <div class="controls">
+        <div class="status-display">
+            <div class="connection-indicator" id="connectionIndicator"></div>
+            <span id="connectionText">Connecting...</span>
+        </div>
 
-<div id="alerts-list"></div>
+        <div class="alert-counter">
+            <strong>Alerts Received:</strong> <span id="alertCount">0</span>
+        </div>
 
-<div id="loading-spinner" style="display: none;">Loading...</div> <!-- Loading spinner -->
+        <div class="control-group">
+            <button onclick="clearAlerts()" class="btn danger">Clear Alerts</button>
+            <a href="{% url 'connection_type' %}" class="btn secondary">← Back to Methods</a>
+        </div>
+    </div>
 
+    <div class="content">
+        <div id="alerts-list">
+            <div class="no-alerts-message" id="noAlertsMessage">
+                <h3>⚡ WebSocket Connection</h3>
+                <p>Establishing real-time connection to the server...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="loading-spinner" class="loading-spinner">
+    <div></div>
+    <p>Connecting to WebSocket...</p>
+</div>
+
+<!-- ADD CACHE BUSTING VERSION PARAMETER -->
+<script src="{% static 'js/scriptweb.js' %}?v={% now 'U' %}"></script>
+<script>
+    let alertCount = 0;
+
+    // Override the displayAlert function to add counter and styling
+    const originalDisplayAlert = window.displayAlert;
+    window.displayAlert = function(data) {
+        // Hide no alerts message
+        const noAlertsMessage = document.getElementById('noAlertsMessage');
+        if (noAlertsMessage) {
+            noAlertsMessage.style.display = 'none';
+        }
+
+        // Update counter
+        alertCount++;
+        document.getElementById('alertCount').textContent = alertCount;
+
+        // Call original function
+        if (originalDisplayAlert) {
+            originalDisplayAlert(data);
+        }
+    };
+
+    // Override the showConnectionStatus function
+    const originalShowConnectionStatus = window.showConnectionStatus;
+    window.showConnectionStatus = function(status, message) {
+        const indicator = document.getElementById('connectionIndicator');
+        const text = document.getElementById('connectionText');
+
+        if (indicator && text) {
+            indicator.className = `connection-indicator ${status}`;
+            text.textContent = message;
+        }
+
+        // Call original function if it exists
+        if (originalShowConnectionStatus) {
+            originalShowConnectionStatus(status, message);
+        }
+    };
+
+    function clearAlerts() {
+        if (confirm('Are you sure you want to clear all alerts?')) {
+            const alertsList = document.getElementById('alerts-list');
+            alertsList.innerHTML = `
+                    <div class="no-alerts-message" id="noAlertsMessage">
+                        <h3>⚡ WebSocket Connection</h3>
+                        <p>WebSocket connected and waiting for new alerts...</p>
+                    </div>
+                `;
+            alertCount = 0;
+            document.getElementById('alertCount').textContent = alertCount;
+            console.log('All alerts cleared');
+        }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('=== WEBSOCKET ALERTS ===');
+        console.log('Method: WebSocket');
+        console.log('========================');
+    });
+</script>
 </body>
 </html>

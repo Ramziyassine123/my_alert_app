@@ -3,13 +3,16 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.index, name='index'),
-    path('register/', views.register, name='register'),
-    path('login/', views.login_view, name='login'),
-    path('logout/', views.logout_view, name='logout'),
+    # Main entry point - connection type selection (no more auth required)
     path('connection-type/', views.connection_type_view, name='connection_type'),
+
+    # Technology-specific alert pages
     path('alerts/poll/', views.alerts_longpolling_view, name='alerts_longpolling'),
     path('alerts/websocket/', views.alerts_websocket_view, name='alerts_websocket'),
-    path('alerts/push/', views.alerts_push_view, name='alerts_push'),  # This should work now
-]
+    path('alerts/push/', views.alerts_push_view, name='alerts_push'),
 
+    # Performance testing endpoints
+    path('test/', views.performance_test_dashboard, name='performance_test_dashboard'),
+    path('test/run/', views.run_performance_test, name='run_performance_test'),
+    path('test/results/', views.get_test_results, name='get_test_results'),
+]

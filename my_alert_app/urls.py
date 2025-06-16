@@ -22,8 +22,15 @@ def serve_service_worker(request):
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('alerts.urls')),  # Include alerts URLs
-    path('firebase-messaging-sw.js', serve_service_worker, name='service_worker'),  # Serve service worker
+
+    # Redirect root to connection type selection (no more login required)
+    path('', RedirectView.as_view(url='/connection-type/', permanent=False)),
+
+    # Include alerts URLs (authentication views removed)
+    path('', include('alerts.urls')),
+
+    # Serve service worker
+    path('firebase-messaging-sw.js', serve_service_worker, name='service_worker'),
 ]
 
 # Serve static files during development
