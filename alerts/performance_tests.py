@@ -1,6 +1,5 @@
 """
-Comprehensive Performance Testing Suite for Alert Technologies
-Tests WebSocket, HTTP Long Polling, and Firebase Push Notifications
+testing ground
 """
 
 import json

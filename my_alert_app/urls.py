@@ -23,10 +23,8 @@ def serve_service_worker(request):
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # Redirect root to connection type selection (no more login required)
     path('', RedirectView.as_view(url='/connection-type/', permanent=False)),
 
-    # Include alerts URLs (authentication views removed)
     path('', include('alerts.urls')),
 
     # Serve service worker

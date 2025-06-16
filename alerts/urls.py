@@ -3,7 +3,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # Main entry point - connection type selection (no more auth required)
+    # Main entry point - connection type selection
     path('connection-type/', views.connection_type_view, name='connection_type'),
 
     # Technology-specific alert pages

@@ -1,4 +1,4 @@
-#wsgi.py 
+# wsgi.py
 
 import os
 

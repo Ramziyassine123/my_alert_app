@@ -5,10 +5,10 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
+
 SECRET_KEY = 'django-insecure-feq_s^sb)=%@_0!v99iy(8vzypq41jik4f^#7wzqa0nyd$nru7'
 
-# SECURITY WARNING: don't run with debug turned on in production!
+
 DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
@@ -40,12 +40,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'my_alert_app.urls'
 
-# CORS settings - Allow connections to unified server
+# CORS settings
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8001",  # Unified server
+    "http://localhost:8001",
     "http://127.0.0.1:8001",
 ]
-CORS_ALLOW_ALL_ORIGINS = True  # For development
+CORS_ALLOW_ALL_ORIGINS = True
 
 TEMPLATES = [
     {
@@ -101,6 +101,6 @@ CHANNEL_LAYERS = {
     },
 }
 
-# Unified server configuration
+
 UNIFIED_SERVER_URL = 'http://localhost:8001'
 WEBSOCKET_SERVER_URL = 'ws://localhost:8001/ws/alerts/'
