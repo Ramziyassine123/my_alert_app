@@ -256,11 +256,11 @@ class LongPollingTester:
 
         while self.running:
             try:
-                start_time = time.time()
+                start_time = time.time() * 1000
                 response = session.get(self.url)
-                end_time = time.time()
+                end_time = time.time() * 1000
 
-                latency = (end_time - start_time) * 1000
+                latency = (end_time - start_time)
                 self.metrics.add_latency(latency)
                 self.metrics.data_transferred += len(response.content)
 
@@ -332,11 +332,11 @@ class PushNotificationTester:
     def _test_token_registration(self) -> bool:
         """Test FCM token registration"""
         try:
-            start_time = time.time()
+            start_time = time.time() * 1000
             response = requests.get(f"{self.base_url}/stats/", timeout=10)
-            end_time = time.time()
+            end_time = time.time() * 1000
 
-            latency = (end_time - start_time) * 1000
+            latency = (end_time - start_time)
             self.metrics.add_latency(latency)
 
             if response.status_code == 200:
@@ -355,15 +355,15 @@ class PushNotificationTester:
         try:
             delay = self.test_config.get('message_interval', 3)
 
-            start_time = time.time()
+            start_time = time.time() * 1000
             response = requests.post(
                 f"{self.base_url}/send-sequential/",
                 json={'delay': delay},
                 timeout=10
             )
-            end_time = time.time()
+            end_time = time.time() * 1000
 
-            latency = (end_time - start_time) * 1000
+            latency = (end_time - start_time)
             self.metrics.add_latency(latency)
             self.metrics.data_transferred += len(response.content)
 
@@ -391,11 +391,11 @@ class PushNotificationTester:
     def _test_statistics_endpoint(self):
         """Test statistics endpoint"""
         try:
-            start_time = time.time()
+            start_time = time.time() * 1000
             response = requests.get(f"{self.base_url}/stats/", timeout=10)
-            end_time = time.time()
+            end_time = time.time() * 1000
 
-            latency = (end_time - start_time) * 1000
+            latency = (end_time - start_time)
             self.metrics.add_latency(latency)
             self.metrics.data_transferred += len(response.content)
 
