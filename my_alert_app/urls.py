@@ -1,9 +1,8 @@
 # my_alert_app/urls.py
-from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.generic import RedirectView
+
 from django.http import HttpResponse, Http404
 import os
 
@@ -21,10 +20,6 @@ def serve_service_worker(request):
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-
-    path('', RedirectView.as_view(url='/connection-type/', permanent=False)),
-
     path('', include('alerts.urls')),
 
     # Serve service worker

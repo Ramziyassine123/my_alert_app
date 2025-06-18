@@ -3,7 +3,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # Main entry point - connection type selection
+    # Main entry point - connection type selection (redirect root to this)
+    path('', views.connection_type_view, name='connection_type'),
     path('connection-type/', views.connection_type_view, name='connection_type'),
 
     # Technology-specific alert pages

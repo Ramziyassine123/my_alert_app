@@ -1,0 +1,27 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Alert System{% endblock %}</title>
+</head>
+<body>
+<header>
+    <h1>Alert System</h1>
+    <nav>
+        <ul>
+            <li><a href="{% url 'connection_type' %}">Alert Methods</a></li>
+            <li><a href="{% url 'performance_test_dashboard' %}">Performance Tests</a></li>
+        </ul>
+    </nav>
+</header>
+<main>
+    {% block content %}{% endblock %}
+</main>
+<footer>
+    <p>&copy; 2025 Alert System</p>
+</footer>
+</body>
+</html>
+
