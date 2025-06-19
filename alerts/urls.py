@@ -23,4 +23,13 @@ urlpatterns = [
     # Legacy API endpoints for backwards compatibility
     path('test/run/', views.PerformanceTestViewSet.as_view({'post': 'run_test'}), name='run_performance_test'),
     path('test/results/', views.PerformanceTestViewSet.as_view({'get': 'results'}), name='get_test_results'),
+
+    # NEW: Individual technology testing endpoints
+    path('test/websocket/', views.PerformanceTestViewSet.as_view({'post': 'test_websocket'}), name='test_websocket_only'),
+    path('test/longpolling/', views.PerformanceTestViewSet.as_view({'post': 'test_longpolling'}), name='test_longpolling_only'),
+    path('test/firebase/', views.PerformanceTestViewSet.as_view({'post': 'test_firebase'}), name='test_firebase_only'),
+
+    # NEW: Live metrics endpoints
+    path('test/metrics/comparison/', views.PerformanceTestViewSet.as_view({'get': 'get_metrics_comparison'}), name='get_metrics_comparison'),
+    path('test/metrics/live/', views.TechnologyMetricsViewSet.as_view({'get': 'live_comparison'}), name='live_metrics_comparison'),
 ]

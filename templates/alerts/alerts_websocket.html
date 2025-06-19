@@ -126,6 +126,72 @@
             background: #545b62;
         }
 
+        .ping-button {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .ping-button:hover {
+            background: #138496;
+        }
+
+        .ping-status {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-left: 10px;
+        }
+
+        .latency-display {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .latency-display h4 {
+            margin: 0 0 10px 0;
+            color: #495057;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .latency-metric {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            padding: 2px 0;
+            border-bottom: 1px dotted #dee2e6;
+        }
+
+        .latency-metric:last-child {
+            border-bottom: none;
+        }
+
+        .latency-label {
+            font-weight: 500;
+            color: #6c757d;
+        }
+
+        .latency-value {
+            font-weight: 600;
+            color: #28a745;
+        }
+
+        .latency-value.high {
+            color: #dc3545;
+        }
+
+        .latency-value.medium {
+            color: #ffc107;
+        }
+
         .content {
             padding: 30px;
         }
@@ -257,7 +323,6 @@
             50% { opacity: 0.5; }
         }
 
-        /* Custom Scrollbar */
         #alerts-list::-webkit-scrollbar {
             width: 8px;
         }
@@ -274,33 +339,6 @@
 
         #alerts-list::-webkit-scrollbar-thumb:hover {
             background: #999;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .container {
-                margin: 10px;
-                border-radius: 15px;
-            }
-
-            .page-header h1 {
-                font-size: 2rem;
-            }
-
-            .controls {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .content {
-                padding: 20px;
-            }
-
-            .alert-meta {
-                flex-direction: column;
-                gap: 10px;
-                align-items: flex-start;
-            }
         }
 
         .connection-status {
@@ -351,6 +389,32 @@
             font-size: 12px;
             opacity: 0.8;
         }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .page-header h1 {
+                font-size: 2rem;
+            }
+
+            .controls {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .alert-meta {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+        }
     </style>
 </head>
 <body>
@@ -371,8 +435,45 @@
         </div>
 
         <div class="control-group">
+            <button onclick="sendManualPing()" class="ping-button">📡 Ping Test</button>
+            <span class="ping-status" id="pingStatus"></span>
+        </div>
+
+        <div class="control-group">
             <button onclick="clearAlerts()" class="btn danger">Clear Alerts</button>
             <a href="{% url 'connection_type' %}" class="btn secondary">← Back to Methods</a>
+        </div>
+    </div>
+
+    <div class="latency-display" id="latency-display">
+        <h4>📊 WebSocket Performance Metrics</h4>
+        <div class="latency-metric">
+            <span class="latency-label">Connection Status:</span>
+            <span class="latency-value" id="connection-status">Connecting...</span>
+        </div>
+        <div class="latency-metric">
+            <span class="latency-label">Average Latency:</span>
+            <span class="latency-value" id="avg-latency">--</span>
+        </div>
+        <div class="latency-metric">
+            <span class="latency-label">Min Latency:</span>
+            <span class="latency-value" id="min-latency">--</span>
+        </div>
+        <div class="latency-metric">
+            <span class="latency-label">Max Latency:</span>
+            <span class="latency-value" id="max-latency">--</span>
+        </div>
+        <div class="latency-metric">
+            <span class="latency-label">Median Latency:</span>
+            <span class="latency-value" id="median-latency">--</span>
+        </div>
+        <div class="latency-metric">
+            <span class="latency-label">Sample Count:</span>
+            <span class="latency-value" id="sample-count">0</span>
+        </div>
+        <div class="latency-metric">
+            <span class="latency-label">Last Ping:</span>
+            <span class="latency-value" id="last-ping">--</span>
         </div>
     </div>
 
@@ -391,31 +492,81 @@
     <p>Connecting to WebSocket...</p>
 </div>
 
-<!-- ADD CACHE BUSTING VERSION PARAMETER -->
 <script src="{% static 'js/scriptweb.js' %}?v={% now 'U' %}"></script>
 <script>
     let alertCount = 0;
 
-    // Override the displayAlert function to add counter and styling
+    function sendManualPing() {
+        const pingStatus = document.getElementById('pingStatus');
+        if (typeof sendPing === 'function') {
+            sendPing();
+            pingStatus.textContent = 'Ping sent...';
+            pingStatus.style.color = '#ffc107';
+
+            setTimeout(() => {
+                if (pingStatus.textContent === 'Ping sent...') {
+                    pingStatus.textContent = 'No response';
+                    pingStatus.style.color = '#dc3545';
+                }
+            }, 5000);
+        } else {
+            pingStatus.textContent = 'Not connected';
+            pingStatus.style.color = '#dc3545';
+        }
+    }
+
+    function updateLatencyDisplay() {
+        if (typeof getLatencyStats === 'function') {
+            const stats = getLatencyStats();
+
+            document.getElementById('avg-latency').textContent =
+                stats.count > 0 ? `${stats.avg.toFixed(2)}ms` : '--';
+            document.getElementById('min-latency').textContent =
+                stats.count > 0 ? `${stats.min.toFixed(2)}ms` : '--';
+            document.getElementById('max-latency').textContent =
+                stats.count > 0 ? `${stats.max.toFixed(2)}ms` : '--';
+            document.getElementById('median-latency').textContent =
+                stats.count > 0 ? `${stats.median.toFixed(2)}ms` : '--';
+            document.getElementById('sample-count').textContent = stats.count;
+
+            const avgElement = document.getElementById('avg-latency');
+            if (stats.avg > 0) {
+                avgElement.className = 'latency-value';
+                if (stats.avg > 1000) {
+                    avgElement.classList.add('high');
+                } else if (stats.avg > 100) {
+                    avgElement.classList.add('medium');
+                }
+            }
+
+            const connectionStatus = document.getElementById('connection-status');
+            if (typeof socket !== 'undefined' && socket && socket.readyState === WebSocket.OPEN) {
+                connectionStatus.textContent = 'Connected';
+                connectionStatus.className = 'latency-value';
+            } else {
+                connectionStatus.textContent = 'Disconnected';
+                connectionStatus.className = 'latency-value high';
+            }
+        }
+    }
+
     const originalDisplayAlert = window.displayAlert;
     window.displayAlert = function(data) {
-        // Hide no alerts message
         const noAlertsMessage = document.getElementById('noAlertsMessage');
         if (noAlertsMessage) {
             noAlertsMessage.style.display = 'none';
         }
 
-        // Update counter
         alertCount++;
         document.getElementById('alertCount').textContent = alertCount;
 
-        // Call original function
         if (originalDisplayAlert) {
             originalDisplayAlert(data);
         }
+
+        updateLatencyDisplay();
     };
 
-    // Override the showConnectionStatus function
     const originalShowConnectionStatus = window.showConnectionStatus;
     window.showConnectionStatus = function(status, message) {
         const indicator = document.getElementById('connectionIndicator');
@@ -426,32 +577,64 @@
             text.textContent = message;
         }
 
-        // Call original function if it exists
+        updateLatencyDisplay();
+
         if (originalShowConnectionStatus) {
             originalShowConnectionStatus(status, message);
         }
+    };
+
+    window.handlePingResponse = function(latency) {
+        const pingStatus = document.getElementById('pingStatus');
+        const lastPingElement = document.getElementById('last-ping');
+
+        if (pingStatus) {
+            pingStatus.textContent = `${latency.toFixed(2)}ms`;
+            pingStatus.style.color = latency > 100 ? '#dc3545' : '#28a745';
+        }
+
+        if (lastPingElement) {
+            lastPingElement.textContent = `${latency.toFixed(2)}ms`;
+            lastPingElement.className = 'latency-value';
+            if (latency > 100) {
+                lastPingElement.classList.add('high');
+            } else if (latency > 50) {
+                lastPingElement.classList.add('medium');
+            }
+        }
+
+        updateLatencyDisplay();
     };
 
     function clearAlerts() {
         if (confirm('Are you sure you want to clear all alerts?')) {
             const alertsList = document.getElementById('alerts-list');
             alertsList.innerHTML = `
-                    <div class="no-alerts-message" id="noAlertsMessage">
-                        <h3>⚡ WebSocket Connection</h3>
-                        <p>WebSocket connected and waiting for new alerts...</p>
-                    </div>
-                `;
+                <div class="no-alerts-message" id="noAlertsMessage">
+                    <h3>⚡ WebSocket Connection</h3>
+                    <p>WebSocket connected and waiting for new alerts...</p>
+                </div>
+            `;
             alertCount = 0;
             document.getElementById('alertCount').textContent = alertCount;
+
+            if (typeof latencyMeasurements !== 'undefined') {
+                latencyMeasurements = [];
+            }
+
             console.log('All alerts cleared');
         }
     }
 
-    // Initialize
+    setInterval(updateLatencyDisplay, 2000);
+
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('=== WEBSOCKET ALERTS ===');
+        console.log('=== WEBSOCKET ALERTS WITH LATENCY MONITORING ===');
         console.log('Method: WebSocket');
-        console.log('========================');
+        console.log('Latency monitoring: Enabled');
+        console.log('================================================');
+
+        updateLatencyDisplay();
     });
 </script>
 </body>
