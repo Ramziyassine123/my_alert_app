@@ -1,0 +1,1652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Testing Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .port-info {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            margin-top: 15px;
+            display: inline-block;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .config-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .config-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .config-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #495057;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .config-group input,
+        .config-group select {
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .config-group input:focus,
+        .config-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .network-profiles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .network-profile {
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .network-profile:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .network-profile.selected {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .technologies-section {
+            margin-bottom: 20px;
+        }
+
+        .tech-checkboxes {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .tech-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .tech-checkbox:hover {
+            border-color: #667eea;
+        }
+
+        .tech-checkbox.selected {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .tech-checkbox input[type="checkbox"] {
+            margin: 0;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .results-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .results-section.show {
+            display: block;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .result-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .result-status {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-running {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .metrics-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .metrics-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .metrics-list li:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            font-weight: 500;
+            color: #666;
+        }
+
+        .metric-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .resource-monitor {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .resource-item {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .resource-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .resource-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.warning {
+            background: linear-gradient(90deg, #ffc107, #fd7e14);
+        }
+
+        .progress-fill.danger {
+            background: linear-gradient(90deg, #dc3545, #e83e8c);
+        }
+
+        .log-section {
+            background: #2d3748;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 2px 0;
+        }
+
+        .log-timestamp {
+            color: #718096;
+        }
+
+        .log-level-info {
+            color: #63b3ed;
+        }
+
+        .log-level-warning {
+            color: #f6e05e;
+        }
+
+        .log-level-error {
+            color: #fc8181;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 10px;
+            padding: 15px 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            border-left: 4px solid #28a745;
+        }
+
+        .toast.error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .toast.info {
+            border-left: 4px solid #007bff;
+        }
+
+        .toast.warning {
+            border-left: 4px solid #ffc107;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .config-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .control-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .tech-checkboxes {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🚀 Enhanced Performance Testing Dashboard</h1>
+        <p>End-to-end delivery • Unlimited scaling • Network simulation • Real-time monitoring</p>
+        <div class="port-info">
+            <strong>Client:</strong> localhost:8000 | <strong>Server:</strong> localhost:8001 | <strong>Status:</strong> <span id="server-status">Checking...</span>
+        </div>
+    </div>
+
+    <div class="content">
+        <!-- Test Configuration -->
+        <div class="config-section">
+            <h2>🔧 Test Configuration</h2>
+
+            <div class="technologies-section">
+                <label><strong>Technologies to Test:</strong></label>
+                <div class="tech-checkboxes">
+                    <div class="tech-checkbox selected" data-tech="websocket">
+                        <input type="checkbox" id="tech-websocket" checked>
+                        <label for="tech-websocket">WebSocket</label>
+                    </div>
+                    <div class="tech-checkbox selected" data-tech="longpolling">
+                        <input type="checkbox" id="tech-longpolling" checked>
+                        <label for="tech-longpolling">Long Polling</label>
+                    </div>
+                    <div class="tech-checkbox selected" data-tech="firebase">
+                        <input type="checkbox" id="tech-firebase" checked>
+                        <label for="tech-firebase">Firebase Push</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="config-grid">
+                <div class="config-group">
+                    <label>⏱️ Test Duration (seconds)</label>
+                    <input type="number" id="test-duration" value="120" min="30" max="600">
+                </div>
+
+                <div class="config-group">
+                    <label>👥 Scalability Test Clients</label>
+                    <input type="number" id="scalability-clients" value="2000" min="100" max="10000">
+                </div>
+
+                <div class="config-group">
+                    <label>🔄 Max Concurrent Clients</label>
+                    <input type="number" id="max-concurrent" placeholder="Auto (system-based)">
+                </div>
+
+                <div class="config-group">
+                    <label>🌐 End-to-End Test Clients</label>
+                    <input type="number" id="e2e-clients" value="5" min="1" max="10">
+                </div>
+
+                <div class="config-group">
+                    <label>🎯 Token Scale Test Count</label>
+                    <input type="number" id="token-scale" value="1000" min="100" max="5000">
+                </div>
+
+                <div class="config-group">
+                    <label>📊 Resource Monitoring</label>
+                    <select id="resource-monitoring">
+                        <option value="true">Enabled</option>
+                        <option value="false">Disabled</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="config-group">
+                <label><strong>🌐 Network Simulation Profile:</strong></label>
+                <div class="network-profiles">
+                    <div class="network-profile" data-profile="perfect">
+                        <strong>Perfect</strong><br>
+                        <small>0ms latency</small>
+                    </div>
+                    <div class="network-profile" data-profile="local_wifi">
+                        <strong>Local WiFi</strong><br>
+                        <small>5ms latency</small>
+                    </div>
+                    <div class="network-profile selected" data-profile="good_mobile">
+                        <strong>Good Mobile</strong><br>
+                        <small>50ms latency</small>
+                    </div>
+                    <div class="network-profile" data-profile="poor_mobile">
+                        <strong>Poor Mobile</strong><br>
+                        <small>200ms latency</small>
+                    </div>
+                    <div class="network-profile" data-profile="international">
+                        <strong>International</strong><br>
+                        <small>150ms latency</small>
+                    </div>
+                    <div class="network-profile" data-profile="satellite">
+                        <strong>Satellite</strong><br>
+                        <small>600ms latency</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-buttons">
+                <button class="btn btn-primary" id="start-test">
+                    <span>🚀</span> Start Enhanced Tests
+                </button>
+                <button class="btn btn-secondary" id="get-results" disabled>
+                    <span>📊</span> Get Latest Results
+                </button>
+                <button class="btn btn-success" id="export-results" disabled>
+                    <span>💾</span> Export Results
+                </button>
+                <button class="btn btn-danger" id="stop-test" disabled>
+                    <span>⏹️</span> Stop Tests
+                </button>
+            </div>
+        </div>
+
+        <!-- Real-time System Resources -->
+        <div class="resource-monitor">
+            <h3>📊 Real-time System Resources</h3>
+            <div class="resource-grid">
+                <div class="resource-item">
+                    <div class="resource-value" id="cpu-usage">0%</div>
+                    <div class="resource-label">CPU Usage</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="cpu-progress"></div>
+                    </div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-value" id="memory-usage">0%</div>
+                    <div class="resource-label">Memory Usage</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="memory-progress"></div>
+                    </div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-value" id="active-connections">0</div>
+                    <div class="resource-label">Active Connections</div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-value" id="load-avg">0.00</div>
+                    <div class="resource-label">Load Average</div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-value" id="memory-available">0 GB</div>
+                    <div class="resource-label">Available Memory</div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-value" id="active-clients">0</div>
+                    <div class="resource-label">Test Clients</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Results -->
+        <div class="results-section" id="results-section">
+            <h2>🎯 Test Results</h2>
+            <div class="results-grid" id="results-grid">
+                <!-- Results will be populated here -->
+            </div>
+
+            <!-- Charts -->
+            <div class="chart-container">
+                <div class="chart-title">Performance Comparison</div>
+                <canvas id="performance-chart" width="400" height="200"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Scalability Results</div>
+                <canvas id="scalability-chart" width="400" height="200"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Network Conditions Impact</div>
+                <canvas id="network-chart" width="400" height="200"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Resource Usage Over Time</div>
+                <canvas id="resource-chart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Live Logs -->
+        <div class="chart-container">
+            <div class="chart-title">🔍 Live Test Logs</div>
+            <div class="log-section" id="test-logs">
+                <div class="log-entry">
+                    <span class="log-timestamp">[2025-06-20 15:30:00]</span>
+                    <span class="log-level-info">[INFO]</span>
+                    Enhanced Performance Testing Dashboard initialized
+                </div>
+                <div class="log-entry">
+                    <span class="log-timestamp">[2025-06-20 15:30:01]</span>
+                    <span class="log-level-info">[INFO]</span>
+                    All enhancement features enabled and ready
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast notifications -->
+<div class="toast" id="toast">
+    <div id="toast-message"></div>
+</div>
+
+<script>
+    // Global variables
+    let currentTestId = null;
+    let testRunning = false;
+    let resourceUpdateInterval = null;
+    let logUpdateInterval = null;
+    let charts = {};
+
+    // Configuration - Call CLIENT APIs, not SERVER APIs
+    const CLIENT_API_BASE = 'http://localhost:8000';  // CLIENT (my_alert_app)
+    const SERVER_API_BASE = 'http://localhost:8001';  // SERVER (ServerSide)
+
+    let selectedNetworkProfile = 'good_mobile';
+    let selectedTechnologies = ['websocket', 'longpolling', 'firebase'];
+
+    // Initialize dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+        // Wait for Chart.js to load before initializing
+        if (typeof Chart !== 'undefined') {
+            initializeDashboard();
+        } else {
+            // Fallback: wait a bit for Chart.js to load
+            setTimeout(() => {
+                if (typeof Chart !== 'undefined') {
+                    initializeDashboard();
+                } else {
+                    addLog('Chart.js failed to load - charts will be disabled', 'warning');
+                    initializeDashboardWithoutCharts();
+                }
+            }, 1000);
+        }
+        setupEventListeners();
+        startResourceMonitoring();
+        checkServerStatus();
+    });
+
+    function initializeDashboard() {
+        addLog('Dashboard initialized with enhanced features', 'info');
+        if (typeof Chart !== 'undefined') {
+            initializeCharts();
+        } else {
+            addLog('Charts not available - Chart.js not loaded', 'warning');
+        }
+    }
+
+    function initializeDashboardWithoutCharts() {
+        addLog('Dashboard initialized without charts (Chart.js unavailable)', 'warning');
+        // Hide chart containers if Chart.js failed to load
+        document.querySelectorAll('.chart-container').forEach(container => {
+            if (container.querySelector('canvas')) {
+                container.style.display = 'none';
+            }
+        });
+    }
+
+    function setupEventListeners() {
+        // Test controls
+        document.getElementById('start-test').addEventListener('click', startEnhancedTest);
+        document.getElementById('get-results').addEventListener('click', getLatestResults);
+        document.getElementById('export-results').addEventListener('click', exportResults);
+        document.getElementById('stop-test').addEventListener('click', stopTest);
+
+        // Network profile selection
+        document.querySelectorAll('.network-profile').forEach(profile => {
+            profile.addEventListener('click', function() {
+                document.querySelectorAll('.network-profile').forEach(p => p.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedNetworkProfile = this.dataset.profile;
+                addLog(`Network profile changed to: ${selectedNetworkProfile}`, 'info');
+            });
+        });
+
+        // Technology selection
+        document.querySelectorAll('.tech-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', function() {
+                const input = this.querySelector('input[type="checkbox"]');
+                input.checked = !input.checked;
+                this.classList.toggle('selected', input.checked);
+
+                updateSelectedTechnologies();
+            });
+        });
+    }
+
+    function updateSelectedTechnologies() {
+        selectedTechnologies = [];
+        document.querySelectorAll('.tech-checkbox.selected input:checked').forEach(input => {
+            selectedTechnologies.push(input.closest('.tech-checkbox').dataset.tech);
+        });
+
+        addLog(`Selected technologies: ${selectedTechnologies.join(', ')}`, 'info');
+    }
+
+    // FIXED: Server status check in performance_dashboard.html
+    // Replace the checkServerStatus function with this version
+
+    async function checkServerStatus() {
+        try {
+            // Check CLIENT health first
+            const clientResponse = await fetch(`${CLIENT_API_BASE}/api/health/`);
+            const clientData = clientResponse.ok ? await clientResponse.json() : null;
+
+            // Check SERVER health
+            const serverResponse = await fetch(`${SERVER_API_BASE}/api/status/`);
+            const serverData = serverResponse.ok ? await serverResponse.json() : null;
+
+            const statusElement = document.getElementById('server-status');
+
+            // More intelligent status checking
+            const clientHealthy = clientResponse.ok && clientData &&
+                (clientData.status === 'healthy' || clientData.status === 'degraded');
+            const serverHealthy = serverResponse.ok && serverData && serverData.status === 'online';
+
+            if (clientHealthy && serverHealthy) {
+                statusElement.textContent = '✅ Both Online';
+                statusElement.style.color = '#28a745';
+                addLog('Both CLIENT and SERVER are online and healthy', 'info');
+
+                // Log more details
+                if (clientData.status === 'degraded') {
+                    addLog('CLIENT status is degraded but functional', 'warning');
+
+                    // Check what's causing degraded status
+                    Object.entries(clientData.services || {}).forEach(([service, status]) => {
+                        if (status !== 'healthy') {
+                            addLog(`CLIENT ${service}: ${status}`, 'warning');
+                        }
+                    });
+                }
+
+            } else if (clientHealthy && !serverHealthy) {
+                statusElement.textContent = '⚠️ CLIENT OK, SERVER Down';
+                statusElement.style.color = '#ffc107';
+                addLog('CLIENT online but SERVER is not responding', 'warning');
+
+            } else if (!clientHealthy && serverHealthy) {
+                statusElement.textContent = '⚠️ SERVER OK, CLIENT Issues';
+                statusElement.style.color = '#ffc107';
+                addLog('SERVER online but CLIENT has issues', 'warning');
+
+            } else {
+                throw new Error('Both servers not responding properly');
+            }
+
+            // Test specific endpoints if both are online
+            if (clientHealthy && serverHealthy) {
+                await testSpecificEndpoints();
+            }
+
+        } catch (error) {
+            const statusElement = document.getElementById('server-status');
+            statusElement.textContent = '❌ Connection Error';
+            statusElement.style.color = '#dc3545';
+            addLog(`Server connectivity error: ${error.message}`, 'error');
+            showTroubleshootingInfo();
+        }
+    }
+
+    async function testSpecificEndpoints() {
+        const endpoints = [
+            { name: 'WebSocket Info', url: `${SERVER_API_BASE}/api/ws/health/` },
+            { name: 'Long Polling', url: `${SERVER_API_BASE}/api/poll/status/` },
+            { name: 'Push Notifications', url: `${SERVER_API_BASE}/api/push/stats/` }
+        ];
+
+        for (const endpoint of endpoints) {
+            try {
+                const response = await fetch(endpoint.url, {
+                    method: 'GET',
+                    timeout: 5000
+                });
+
+                if (response.ok) {
+                    addLog(`${endpoint.name}: ✅ Available`, 'info');
+                } else {
+                    addLog(`${endpoint.name}: ⚠️ HTTP ${response.status}`, 'warning');
+                }
+            } catch (error) {
+                addLog(`${endpoint.name}: ❌ ${error.message}`, 'error');
+            }
+        }
+    }
+
+    function showTroubleshootingInfo() {
+        addLog('=== Troubleshooting Steps ===', 'info');
+        addLog('1. Make sure both servers are running:', 'info');
+        addLog('   CLIENT: python manage.py runserver 8000', 'info');
+        addLog('   SERVER: python manage.py runserver 8001', 'info');
+        addLog('2. Test endpoints manually:', 'info');
+        addLog('   http://127.0.0.1:8000/api/health/', 'info');
+        addLog('   http://127.0.0.1:8001/api/status/', 'info');
+        addLog('3. Check firewall settings for ports 8000 and 8001', 'info');
+    }
+
+
+
+    // Enhanced start test function with better error handling
+    async function startEnhancedTest() {
+        if (testRunning) return;
+
+        // Validate configuration
+        if (selectedTechnologies.length === 0) {
+            showToast('Please select at least one technology to test', 'error');
+            return;
+        }
+
+        // Get configuration
+        const config = {
+            technologies: selectedTechnologies,
+            duration: parseInt(document.getElementById('test-duration').value),
+            scalability_clients: parseInt(document.getElementById('scalability-clients').value),
+            max_concurrent_clients: document.getElementById('max-concurrent').value ?
+                parseInt(document.getElementById('max-concurrent').value) : null,
+            network_profile: selectedNetworkProfile,
+            e2e_clients: parseInt(document.getElementById('e2e-clients').value),
+            token_scale_test: parseInt(document.getElementById('token-scale').value),
+            enable_resource_monitoring: document.getElementById('resource-monitoring').value === 'true'
+        };
+
+        console.log('Starting test with config:', config);
+        addLog(`Starting enhanced performance test with technologies: ${selectedTechnologies.join(', ')}`, 'info');
+
+        try {
+            setTestingState(true);
+
+            const response = await fetch(`${CLIENT_API_BASE}/api/start-enhanced-performance-test/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify(config)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+            console.log('Test start response:', result);
+
+            if (result.status === 'started') {
+                currentTestId = result.test_id;
+                showToast(`Enhanced tests started successfully! Test ID: ${currentTestId}`, 'success');
+                addLog(`Test started with ID: ${currentTestId}`, 'info');
+
+                if (result.enhancements) {
+                    addLog(`Enhancements: ${result.enhancements.join(', ')}`, 'info');
+                }
+
+                // Start polling for results
+                startResultPolling();
+            } else {
+                throw new Error(result.message || 'Unknown error');
+            }
+        } catch (error) {
+            console.error('Failed to start tests:', error);
+            addLog(`Failed to start enhanced tests: ${error.message}`, 'error');
+            showToast(`Failed to start tests: ${error.message}`, 'error');
+            setTestingState(false);
+        }
+    }
+
+    // Enhanced error handling for get results
+    async function getLatestResults() {
+        try {
+            showToast('Fetching latest results...', 'info');
+
+            const url = currentTestId ?
+                `${CLIENT_API_BASE}/api/get-enhanced-test-results/?test_id=${currentTestId}` :
+                `${CLIENT_API_BASE}/api/get-enhanced-test-results/`;
+
+            const response = await fetch(url);
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const results = await response.json();
+
+            console.log('Raw API response:', results);
+
+            if (results) {
+                displayResults(results);
+                showToast('Results updated successfully', 'success');
+                addLog('Test results retrieved and displayed', 'info');
+            } else {
+                showToast('No results found', 'warning');
+                addLog('No test results available', 'warning');
+            }
+
+        } catch (error) {
+            console.error('Failed to get results:', error);
+            addLog(`Failed to get results: ${error.message}`, 'error');
+            showToast(`Failed to get results: ${error.message}`, 'error');
+        }
+    }
+
+    // Enhanced displayResults function
+    function displayResults(results) {
+        console.log('Displaying results:', results);
+
+        const resultsSection = document.getElementById('results-section');
+        const resultsGrid = document.getElementById('results-grid');
+
+        if (!resultsSection || !resultsGrid) {
+            console.error('Results UI elements not found');
+            return;
+        }
+
+        resultsSection.classList.add('show');
+        resultsGrid.innerHTML = '';
+
+        // Handle the actual response format from enhanced API
+        if (results && typeof results === 'object') {
+            // Check if it's the enhanced test results format
+            if (results.results && typeof results.results === 'object') {
+                // Enhanced format: results.results contains technology results
+                Object.entries(results.results).forEach(([tech, techResults]) => {
+                    const resultCard = createResultCard(tech, techResults);
+                    resultsGrid.appendChild(resultCard);
+                });
+            } else if (Array.isArray(results)) {
+                // Legacy array format
+                results.forEach((techResults, index) => {
+                    const tech = techResults.technology || `Technology ${index + 1}`;
+                    const resultCard = createResultCard(tech, techResults);
+                    resultsGrid.appendChild(resultCard);
+                });
+            } else {
+                // Single technology result
+                const tech = results.technology || 'Unknown Technology';
+                const resultCard = createResultCard(tech, results);
+                resultsGrid.appendChild(resultCard);
+            }
+
+            // Update charts with enhanced data
+            updateCharts(results);
+
+            // Display summary if available
+            if (results.summary) {
+                displayTestSummary(results.summary);
+            }
+
+            // Display architecture info if available
+            if (results.architecture_info) {
+                displayArchitectureInfo(results.architecture_info);
+            }
+        } else {
+            // No results available
+            resultsGrid.innerHTML = `
+                <div class="result-card" style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+                    <h3>No Results Available</h3>
+                    <p>Run a performance test to see results here.</p>
+                </div>
+            `;
+        }
+    }
+
+    // Enhanced createResultCard function
+    function createResultCard(tech, techResults) {
+        const card = document.createElement('div');
+        card.className = 'result-card';
+
+        // Handle different result formats
+        let status = 'Unknown';
+        let statistics = {};
+        let results = [];
+
+        if (techResults) {
+            status = techResults.status || 'Unknown';
+            statistics = techResults.statistics || {};
+            results = techResults.results || [];
+
+            // If results is an object (like Firebase), convert to array format
+            if (typeof results === 'object' && !Array.isArray(results)) {
+                results = Object.values(results).flat();
+            }
+        }
+
+        const statusClass = status.toLowerCase().includes('error') ? 'status-error' :
+            status.toLowerCase().includes('running') ? 'status-running' : 'status-completed';
+
+        // Calculate metrics from statistics or results
+        let successfulTests = 0;
+        let totalTests = 0;
+        let avgLatency = 0;
+
+        if (statistics && Object.keys(statistics).length > 0) {
+            // Use statistics if available
+            totalTests = statistics.total_tests || statistics.total_token_tests || 0;
+            successfulTests = statistics.successful_tests || statistics.successful_registrations || 0;
+            avgLatency = statistics.avg_connection_time_ms ||
+                statistics.avg_request_time_ms ||
+                statistics.avg_registration_time_ms || 0;
+        } else if (Array.isArray(results) && results.length > 0) {
+            // Calculate from results array
+            totalTests = results.length;
+            successfulTests = results.filter(r => r && r.success).length;
+
+            const latencies = results
+                .filter(r => r && r.success && (r.connection_time_ms || r.request_time_ms || r.registration_time_ms))
+                .map(r => r.connection_time_ms || r.request_time_ms || r.registration_time_ms);
+
+            avgLatency = latencies.length > 0 ?
+                latencies.reduce((a, b) => a + b, 0) / latencies.length : 0;
+        }
+
+        const successRate = totalTests > 0 ? (successfulTests / totalTests * 100) : 0;
+
+        card.innerHTML = `
+            <div class="result-header">
+                <div class="result-title">${tech.charAt(0).toUpperCase() + tech.slice(1)}</div>
+                <div class="result-status ${statusClass}">${status}</div>
+            </div>
+            <ul class="metrics-list">
+                <li>
+                    <span class="metric-label">Total Tests</span>
+                    <span class="metric-value">${totalTests}</span>
+                </li>
+                <li>
+                    <span class="metric-label">Success Rate</span>
+                    <span class="metric-value">${successRate.toFixed(1)}%</span>
+                </li>
+                <li>
+                    <span class="metric-label">Avg Latency</span>
+                    <span class="metric-value">${avgLatency.toFixed(1)}ms</span>
+                </li>
+                <li>
+                    <span class="metric-label">Enhanced Testing</span>
+                    <span class="metric-value">✓ CLIENT→SERVER</span>
+                </li>
+            </ul>
+        `;
+
+        return card;
+    }
+
+    function displayTestSummary(summary) {
+        console.log('Displaying test summary:', summary);
+
+        if (summary) {
+            addLog(`Test Summary: ${summary.total_technologies_tested} technologies tested`, 'info');
+
+            if (summary.technology_performance) {
+                Object.entries(summary.technology_performance).forEach(([tech, performance]) => {
+                    if (performance.success_rate !== undefined) {
+                        addLog(`${tech}: ${performance.success_rate.toFixed(1)}% success rate, ${performance.avg_latency_ms?.toFixed(1) || 0}ms avg latency`, 'info');
+                    }
+                });
+            }
+
+            if (summary.overall_success_rate !== undefined) {
+                addLog(`Overall Success Rate: ${summary.overall_success_rate.toFixed(1)}%`, 'info');
+            }
+        }
+    }
+
+    function displayArchitectureInfo(architecture) {
+        console.log('Architecture Info:', architecture);
+
+        if (architecture && architecture.testing_direction) {
+            addLog(`Testing Architecture: ${architecture.testing_direction}`, 'info');
+            addLog(`Client: ${architecture.client_app}:${architecture.client_port}, Server: ${architecture.server_app}:${architecture.server_port}`, 'info');
+        }
+    }
+
+    function initializeCharts() {
+        // Check if Chart.js is available
+        if (typeof Chart === 'undefined') {
+            addLog('Chart.js not available - skipping chart initialization', 'warning');
+            return;
+        }
+
+        try {
+            // Performance comparison chart
+            const performanceCtx = document.getElementById('performance-chart')?.getContext('2d');
+            if (performanceCtx) {
+                charts.performance = new Chart(performanceCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Average Latency (ms)',
+                            data: [],
+                            backgroundColor: ['#667eea', '#764ba2', '#f093fb']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Scalability chart
+            const scalabilityCtx = document.getElementById('scalability-chart')?.getContext('2d');
+            if (scalabilityCtx) {
+                charts.scalability = new Chart(scalabilityCtx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: []
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Success Rate (%)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Concurrent Clients'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Network conditions chart
+            const networkCtx = document.getElementById('network-chart')?.getContext('2d');
+            if (networkCtx) {
+                charts.network = new Chart(networkCtx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['Perfect', 'Local WiFi', 'Good Mobile', 'Poor Mobile', 'International', 'Satellite'],
+                        datasets: []
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            r: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Resource usage chart
+            const resourceCtx = document.getElementById('resource-chart')?.getContext('2d');
+            if (resourceCtx) {
+                charts.resource = new Chart(resourceCtx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [
+                            {
+                                label: 'CPU Usage (%)',
+                                data: [],
+                                borderColor: '#667eea',
+                                backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                                fill: true
+                            },
+                            {
+                                label: 'Memory Usage (%)',
+                                data: [],
+                                borderColor: '#764ba2',
+                                backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                                fill: true
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+            }
+
+            addLog('Charts initialized successfully', 'info');
+        } catch (error) {
+            addLog(`Failed to initialize charts: ${error.message}`, 'error');
+        }
+    }
+
+    // FIXED: Enhanced updateCharts function in performance_dashboard.html
+    function updateCharts(results) {
+        // Only update charts if Chart.js is available and charts are initialized
+        if (typeof Chart === 'undefined' || !charts || Object.keys(charts).length === 0) {
+            console.log('Skipping chart updates - charts not available');
+            return;
+        }
+
+        try {
+            console.log('Updating charts with results:', results);
+
+            // Extract technology results for charts - FIXED
+            let techResults = {};
+
+            if (results.results && typeof results.results === 'object') {
+                techResults = results.results;
+            } else if (Array.isArray(results)) {
+                // Convert array to object format
+                results.forEach((result, index) => {
+                    const techName = result.technology || `tech_${index}`;
+                    techResults[techName] = result;
+                });
+            }
+
+            console.log('Extracted tech results:', techResults);
+
+            // Update performance chart
+            if (charts.performance && Object.keys(techResults).length > 0) {
+                const techs = Object.keys(techResults);
+                const latencies = techs.map(tech => {
+                    const techData = techResults[tech];
+                    const stats = techData.statistics || {};
+                    return stats.avg_connection_time_ms ||
+                        stats.avg_request_time_ms ||
+                        stats.avg_registration_time_ms || 0;
+                });
+
+                charts.performance.data.labels = techs.map(t => t.charAt(0).toUpperCase() + t.slice(1));
+                charts.performance.data.datasets[0].data = latencies;
+                charts.performance.update();
+                console.log('Updated performance chart');
+            }
+
+            // Update scalability chart
+            if (charts.scalability && results.summary?.technology_performance) {
+                const techPerformance = results.summary.technology_performance;
+                const successRates = Object.values(techPerformance).map(p => p.success_rate || 0);
+                const techNames = Object.keys(techPerformance).map(t => t.charAt(0).toUpperCase() + t.slice(1));
+
+                charts.scalability.data.labels = techNames;
+                charts.scalability.data.datasets = [{
+                    label: 'Success Rate (%)',
+                    data: successRates,
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    fill: true
+                }];
+                charts.scalability.update();
+                console.log('Updated scalability chart');
+            }
+
+            // FIXED: Update network chart with better error handling
+            if (charts.network && results.results) {
+                const networkData = {};
+
+                // Initialize all profiles to 0
+                const profiles = ['perfect', 'local_wifi', 'good_mobile', 'poor_mobile', 'international', 'satellite'];
+                profiles.forEach(profile => {
+                    networkData[profile] = { total: 0, success: 0 };
+                });
+
+                // Process results - FIXED to handle different result structures
+                Object.values(results.results).forEach(techResult => {
+                    console.log('Processing tech result for network chart:', techResult);
+
+                    // Handle different result structures
+                    let testResults = [];
+
+                    if (techResult.results && Array.isArray(techResult.results)) {
+                        testResults = techResult.results;
+                    } else if (techResult.results && typeof techResult.results === 'object') {
+                        // Handle Firebase structure where results is an object
+                        Object.values(techResult.results).forEach(resultGroup => {
+                            if (Array.isArray(resultGroup)) {
+                                testResults = testResults.concat(resultGroup);
+                            }
+                        });
+                    }
+
+                    console.log('Extracted test results:', testResults);
+
+                    // Process individual test results
+                    testResults.forEach(test => {
+                        if (test && typeof test === 'object') {
+                            // Use configured network profile or default
+                            const profile = test.network_profile || selectedNetworkProfile || 'good_mobile';
+
+                            if (networkData[profile]) {
+                                networkData[profile].total++;
+                                if (test.success) {
+                                    networkData[profile].success++;
+                                }
+                            }
+                        }
+                    });
+                });
+
+                // If no specific network data, use overall success rates
+                if (Object.values(networkData).every(data => data.total === 0)) {
+                    // Use the currently selected network profile and overall results
+                    const currentProfile = selectedNetworkProfile || 'good_mobile';
+
+                    Object.values(results.results).forEach(techResult => {
+                        if (techResult.statistics) {
+                            const stats = techResult.statistics;
+                            const total = stats.total_tests || stats.total_token_tests || 1;
+                            const successful = stats.successful_tests || stats.successful_registrations || 0;
+
+                            networkData[currentProfile].total += total;
+                            networkData[currentProfile].success += successful;
+                        }
+                    });
+                }
+
+                console.log('Final network data:', networkData);
+
+                const successRates = profiles.map(profile => {
+                    const data = networkData[profile];
+                    return data.total > 0 ? (data.success / data.total * 100) : 0;
+                });
+
+                console.log('Network success rates:', successRates);
+
+                charts.network.data.datasets = [{
+                    label: 'Success Rate (%)',
+                    data: successRates,
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.2)'
+                }];
+                charts.network.update();
+                console.log('Updated network chart');
+            }
+
+            // Update resource chart if resource monitoring data is available
+            if (charts.resource && results.resource_monitoring && Array.isArray(results.resource_monitoring)) {
+                const resourceData = results.resource_monitoring.slice(-50); // Last 50 points
+                if (resourceData.length > 0) {
+                    const timestamps = resourceData.map(r => new Date(r.timestamp).toLocaleTimeString());
+                    const cpuData = resourceData.map(r => r.cpu_percent || 0);
+                    const memoryData = resourceData.map(r => r.memory_percent || 0);
+
+                    charts.resource.data.labels = timestamps;
+                    charts.resource.data.datasets[0].data = cpuData;
+                    charts.resource.data.datasets[1].data = memoryData;
+                    charts.resource.update();
+                    console.log('Updated resource chart');
+                }
+            }
+
+        } catch (error) {
+            console.error('Error updating charts:', error);
+            addLog(`Chart update error: ${error.message}`, 'warning');
+        }
+    }
+
+    async function exportResults() {
+        if (!currentTestId) {
+            showToast('No test results to export', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${CLIENT_API_BASE}/api/get-enhanced-test-results/?test_id=${currentTestId}&format=json`);
+            const results = await response.json();
+
+            if (response.ok) {
+                const dataStr = JSON.stringify(results, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(dataBlob);
+                link.download = `enhanced_test_results_${currentTestId}.json`;
+                link.click();
+
+                showToast('Results exported successfully', 'success');
+                addLog('Test results exported to JSON file', 'info');
+            } else {
+                throw new Error('Failed to export results');
+            }
+        } catch (error) {
+            addLog(`Export failed: ${error.message}`, 'error');
+            showToast(`Export failed: ${error.message}`, 'error');
+        }
+    }
+
+    async function stopTest() {
+        if (!testRunning) return;
+
+        try {
+            addLog('Stopping test...', 'info');
+            setTestingState(false);
+            showToast('Test stopped', 'success');
+        } catch (error) {
+            addLog(`Failed to stop test: ${error.message}`, 'error');
+        }
+    }
+
+    function startResourceMonitoring() {
+        resourceUpdateInterval = setInterval(updateResourceMonitoring, 2000);
+    }
+
+    async function updateResourceMonitoring() {
+        try {
+            const response = await fetch(`${CLIENT_API_BASE}/api/get-system-resources/`);
+            const data = await response.json();
+
+            if (response.ok) {
+                if (data.monitoring_active && data.current_stats) {
+                    updateResourceDisplay(data.current_stats);
+                } else if (data.snapshot) {
+                    updateResourceDisplay(data.snapshot);
+                }
+            }
+        } catch (error) {
+            // Silently fail for resource monitoring
+        }
+    }
+
+    function updateResourceDisplay(stats) {
+        // Update CPU
+        const cpuUsage = stats.avg_cpu_percent || stats.cpu_percent || 0;
+        document.getElementById('cpu-usage').textContent = `${cpuUsage.toFixed(1)}%`;
+        updateProgressBar('cpu-progress', cpuUsage);
+
+        // Update Memory
+        const memoryUsage = stats.avg_memory_percent || stats.memory_percent || 0;
+        document.getElementById('memory-usage').textContent = `${memoryUsage.toFixed(1)}%`;
+        updateProgressBar('memory-progress', memoryUsage);
+
+        // Update other metrics
+        document.getElementById('active-connections').textContent = stats.current_connections || stats.active_connections || 0;
+        document.getElementById('load-avg').textContent = (stats.load_avg || 0).toFixed(2);
+        document.getElementById('memory-available').textContent = `${(stats.memory_available_gb || 0).toFixed(1)} GB`;
+
+        // Update active clients if available
+        if (stats.active_clients !== undefined) {
+            document.getElementById('active-clients').textContent = stats.active_clients;
+        }
+    }
+
+    function updateProgressBar(elementId, percentage) {
+        const progressFill = document.getElementById(elementId);
+        progressFill.style.width = `${Math.min(percentage, 100)}%`;
+
+        // Update color based on usage
+        progressFill.className = 'progress-fill';
+        if (percentage > 80) {
+            progressFill.classList.add('danger');
+        } else if (percentage > 60) {
+            progressFill.classList.add('warning');
+        }
+    }
+
+    function startResultPolling() {
+        // Poll for results every 5 seconds during testing
+        const pollInterval = setInterval(async () => {
+            if (!testRunning) {
+                clearInterval(pollInterval);
+                return;
+            }
+
+            try {
+                await getLatestResults();
+            } catch (error) {
+                // Continue polling even if there's an error
+            }
+        }, 5000);
+
+        // Stop polling after test duration + buffer
+        const duration = parseInt(document.getElementById('test-duration').value) || 120;
+        setTimeout(() => {
+            clearInterval(pollInterval);
+            if (testRunning) {
+                setTestingState(false);
+                addLog('Test completed', 'info');
+                showToast('Test completed! Check results below.', 'success');
+            }
+        }, (duration + 30) * 1000); // Add 30 second buffer
+    }
+
+    function setTestingState(testing) {
+        testRunning = testing;
+
+        document.getElementById('start-test').disabled = testing;
+        document.getElementById('get-results').disabled = false;
+        document.getElementById('export-results').disabled = !currentTestId;
+        document.getElementById('stop-test').disabled = !testing;
+
+        if (testing) {
+            document.getElementById('start-test').innerHTML = '<span class="spinner"></span> Running Tests...';
+        } else {
+            document.getElementById('start-test').innerHTML = '<span>🚀</span> Start Enhanced Tests';
+        }
+    }
+
+    function addLog(message, level = 'info') {
+        const logContainer = document.getElementById('test-logs');
+        const timestamp = new Date().toLocaleTimeString();
+
+        const logEntry = document.createElement('div');
+        logEntry.className = 'log-entry';
+        logEntry.innerHTML = `
+                <span class="log-timestamp">[${timestamp}]</span>
+                <span class="log-level-${level}">[${level.toUpperCase()}]</span>
+                ${message}
+            `;
+
+        logContainer.appendChild(logEntry);
+        logContainer.scrollTop = logContainer.scrollHeight;
+
+        // Keep only last 100 entries
+        const entries = logContainer.querySelectorAll('.log-entry');
+        if (entries.length > 100) {
+            entries[0].remove();
+        }
+    }
+
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
+
+        toastMessage.textContent = message;
+        toast.className = `toast ${type} show`;
+
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 4000);
+    }
+
+    function getCsrfToken() {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            const [name, value] = cookie.trim().split('=');
+            if (name === 'csrftoken') {
+                return value;
+            }
+        }
+        return '';
+    }
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', function() {
+        if (resourceUpdateInterval) {
+            clearInterval(resourceUpdateInterval);
+        }
+        if (logUpdateInterval) {
+            clearInterval(logUpdateInterval);
+        }
+    });
+
+    // Make sure functions are available globally
+    window.displayResults = displayResults;
+    window.getLatestResults = getLatestResults;
+    window.startEnhancedTest = startEnhancedTest;
+</script>
+</body>
+</html>

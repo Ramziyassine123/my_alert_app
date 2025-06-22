@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Choose Alert Method</title>
+    <title>Choose Communication Technology</title>
     <style>
         * {
             margin: 0;
@@ -26,37 +26,14 @@
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             padding: 40px;
-            max-width: 800px;
+            max-width: 900px;
             text-align: center;
             position: relative;
             overflow: hidden;
         }
 
-        .container::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-            transform: rotate(45deg);
-            transition: all 0.3s ease;
-        }
-
-        .container:hover::before {
-            animation: shine 1s ease-in-out;
-        }
-
-        @keyframes shine {
-            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-        }
-
         .header {
-            position: relative;
-            z-index: 2;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
 
         h1 {
@@ -66,36 +43,21 @@
             font-weight: 300;
         }
 
-        .subtitle {
-            color: #666;
-            font-size: 1.1rem;
-            margin-bottom: 10px;
-        }
-
-        .server-info {
+        .port-info {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            padding: 15px;
-            border-radius: 10px;
+            padding: 12px 25px;
+            border-radius: 25px;
             margin: 20px 0;
-            font-weight: 500;
-        }
-
-        .server-info .port {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-family: 'Courier New', monospace;
-            margin-left: 10px;
+            font-weight: 600;
+            display: inline-block;
         }
 
         .method-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 25px;
             margin: 30px 0;
-            position: relative;
-            z-index: 2;
         }
 
         .method-card {
@@ -109,21 +71,6 @@
             color: inherit;
             position: relative;
             overflow: hidden;
-        }
-
-        .method-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            transition: left 0.5s;
-        }
-
-        .method-card:hover::before {
-            left: 100%;
         }
 
         .method-card:hover {
@@ -213,35 +160,6 @@
             font-weight: bold;
         }
 
-        .performance-test-link {
-            margin-top: 30px;
-            position: relative;
-            z-index: 2;
-        }
-
-        .performance-test-link a {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-            color: white;
-            text-decoration: none;
-            padding: 15px 30px;
-            border-radius: 25px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: inline-block;
-        }
-
-        .performance-test-link a:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
-        }
-
-        .tech-specs {
-            margin-top: 20px;
-            font-size: 0.8rem;
-            color: #999;
-            font-style: italic;
-        }
-
         /* Responsive Design */
         @media (max-width: 768px) {
             .container {
@@ -267,32 +185,13 @@
                 font-size: 3rem;
             }
         }
-
-        /* Loading Animation */
-        .loading {
-            opacity: 0.7;
-            pointer-events: none;
-        }
-
-        .loading .method-icon {
-            animation: pulse 1s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header">
-        <h1>🚨 Choose Alert Method</h1>
-        <p class="subtitle">Select your preferred alert delivery technology</p>
-        <div class="server-info">
-            <strong>🚀 Unified Alert Server</strong>
-            <span class="port">Port 8001</span>
-        </div>
+        <h1>Choose a Communication Technology to Send Alerts</h1>
+        <div class="port-info">Port 8001</div>
     </div>
 
     <form method="post" id="alertForm">
@@ -306,50 +205,49 @@
                     <ul>
                         <li>Background notifications</li>
                         <li>Cross-device support</li>
-                        <li>Persistent delivery</li>
                         <li>Rich notifications</li>
+                        <li>Offline delivery</li>
                     </ul>
                 </div>
-                <div class="tech-specs">Firebase Cloud Messaging</div>
                 <input type="radio" id="push" name="connection_type" value="push" style="display: none;">
             </div>
 
             <div class="method-card longpolling" onclick="selectMethod('long_polling')">
                 <div class="method-icon">🔄</div>
                 <div class="method-title">Long Polling</div>
-                <div class="method-description">HTTP-based continuous polling for reliable alert delivery</div>
+                <div class="method-description">HTTP-based continuous polling with 20-second timeout</div>
                 <div class="method-features">
                     <ul>
                         <li>HTTP-based</li>
                         <li>Firewall friendly</li>
-                        <li>Automatic retry</li>
-                        <li>Simple integration</li>
+                        <li>Progressive delivery</li>
+                        <li>Timeout handling</li>
                     </ul>
                 </div>
-                <div class="tech-specs">HTTP Long Polling</div>
                 <input type="radio" id="long_polling" name="connection_type" value="long_polling" style="display: none;">
             </div>
 
             <div class="method-card websocket" onclick="selectMethod('websocket')">
                 <div class="method-icon">⚡</div>
                 <div class="method-title">WebSocket</div>
-                <div class="method-description">Real-time bidirectional WebSocket connection for instant alerts</div>
+                <div class="method-description">Real-time bidirectional WebSocket communication</div>
                 <div class="method-features">
                     <ul>
                         <li>Real-time delivery</li>
-                        <li>Low latency</li>
+                        <li>Ultra-low latency</li>
                         <li>Bidirectional</li>
-                        <li>Auto-reconnect</li>
+                        <li>Persistent connection</li>
                     </ul>
                 </div>
-                <div class="tech-specs">WebSocket Protocol</div>
                 <input type="radio" id="websocket" name="connection_type" value="websocket" style="display: none;">
             </div>
         </div>
     </form>
 
-    <div class="performance-test-link">
-        <a href="{% url 'performance_test_dashboard' %}">📊 Run Performance Tests</a>
+    <div style="margin-top: 30px; text-align: center;">
+        <a href="{% url 'performance_test_dashboard' %}" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; text-decoration: none; padding: 15px 30px; border-radius: 25px; font-weight: 600; display: inline-block; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);">
+            📊 Performance Test Dashboard
+        </a>
     </div>
 </div>
 
@@ -368,7 +266,8 @@
 
         cards.forEach(card => {
             if (!card.classList.contains(method)) {
-                card.classList.add('loading');
+                card.style.opacity = '0.7';
+                card.style.pointerEvents = 'none';
             }
         });
 
@@ -395,7 +294,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('Alert method selection page loaded - No authentication required');
+        console.log('Alert method selection page loaded');
 
         const cards = document.querySelectorAll('.method-card');
 
@@ -405,16 +304,16 @@
             });
 
             card.addEventListener('mouseleave', function() {
-                if (!this.classList.contains('loading')) {
+                if (this.style.opacity !== '0.7') {
                     this.style.transform = 'translateY(0) scale(1)';
                 }
             });
         });
 
-        console.log('=== UNIFIED ALERT SERVER ===');
-        console.log('Authentication: REMOVED');
-        console.log('Direct access to technology selection');
-        console.log('===============================');
+        console.log('=== ALERT COMMUNICATION SELECTOR ===');
+        console.log('Port: 8001');
+        console.log('Technologies: Push, Long Polling, WebSocket');
+        console.log('====================================');
     });
 </script>
 </body>

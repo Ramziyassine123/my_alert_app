@@ -489,6 +489,246 @@
         }
     }
 
+    // Client-side Firebase E2E test integration
+    // Enhanced Firebase messaging with delivery confirmation
+    messaging.onMessage((payload) => {
+        console.log('📱 REAL push notification received:', payload);
+
+        const notification = payload.notification || {};
+        const data = payload.data || {};
+
+        // Handle delivery confirmation for E2E testing
+        if (data.notification_id && data.real_e2e_test === 'true') {
+            console.log('🎯 E2E test notification - sending delivery confirmation');
+
+            // Send delivery confirmation back to server
+            sendDeliveryConfirmation(data.notification_id, data);
+        }
+
+        // Display the notification normally
+        handleNotification(payload);
+    });
+
+    /**
+     * Send delivery confirmation for E2E testing
+     */
+    async function sendDeliveryConfirmation(notificationId, data) {
+        try {
+            const confirmationData = {
+                notification_id: notificationId,
+                token: await getCurrentFCMToken(), // Get current token
+                delivered_at: Date.now(),
+                alert_index: data.alert_index,
+                sequence_position: data.sequence_position,
+                client_received_timestamp: Date.now(),
+                send_timestamp: data.send_timestamp,
+                end_to_end_latency: Date.now() - parseInt(data.send_timestamp || Date.now())
+            };
+
+            const response = await fetch('http://localhost:8001/api/push/confirm-delivery/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(confirmationData)
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                console.log('✅ Delivery confirmation sent:', result);
+
+                // Show visual confirmation in UI
+                showDeliveryConfirmation(notificationId, confirmationData.end_to_end_latency);
+            } else {
+                console.error('❌ Failed to send delivery confirmation:', response.status);
+            }
+
+        } catch (error) {
+            console.error('❌ Error sending delivery confirmation:', error);
+        }
+    }
+
+    /**
+     * Get current FCM token
+     */
+    async function getCurrentFCMToken() {
+        try {
+            const token = await messaging.getToken({
+                vapidKey: 'BE6ICAm5uvt9ZjqJ9CkLf6r8MMwFgNA4BxW_g0Y9mQ2tpKc3X93N3QFnq3X0fVTLEMTvpgfh9Z5lBcg8qLmMZcQ'
+            });
+            return token;
+        } catch (error) {
+            console.error('Error getting FCM token:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Show delivery confirmation in UI
+     */
+    function showDeliveryConfirmation(notificationId, latency) {
+        const confirmationDiv = document.createElement('div');
+        confirmationDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #28a745;
+        color: white;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 10000;
+        font-family: Arial, sans-serif;
+        max-width: 300px;
+    `;
+
+        confirmationDiv.innerHTML = `
+        <div style="font-weight: bold; margin-bottom: 5px;">
+            ✅ E2E Delivery Confirmed
+        </div>
+        <div style="font-size: 12px;">
+            Notification ID: ${notificationId.slice(-8)}<br>
+            End-to-End Latency: ${latency}ms<br>
+            Real delivery tracking active
+        </div>
+    `;
+
+        document.body.appendChild(confirmationDiv);
+
+        // Remove after 5 seconds
+        setTimeout(() => {
+            if (confirmationDiv.parentNode) {
+                confirmationDiv.remove();
+            }
+        }, 5000);
+    }
+
+    /**
+     * Enhanced notification sending with E2E tracking
+     */
+    async function sendE2ETestNotifications() {
+        try {
+            updateStatus('connected', 'Starting E2E Firebase test...');
+
+            const delay = document.getElementById('delayInput')?.value || 3;
+
+            const response = await fetch('http://localhost:8001/api/push/send-sequential/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    delay: parseInt(delay),
+                    test_mode: 'end_to_end',
+                    notification_id: `e2e_test_${Date.now()}`
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('🚀 E2E test started:', data);
+
+                updateStatus('connected', `E2E test started: ${data.total_alerts} notifications with delivery tracking`);
+
+                // Monitor delivery stats
+                if (data.notification_id) {
+                    monitorDeliveryStats(data.notification_id, data.estimated_duration);
+                }
+
+            } else {
+                throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+            }
+
+        } catch (error) {
+            console.error('❌ E2E test failed:', error);
+            updateStatus('disconnected', `E2E test failed: ${error.message}`);
+        }
+    }
+
+    /**
+     * Monitor delivery statistics in real-time
+     */
+    async function monitorDeliveryStats(notificationId, estimatedDuration) {
+        const monitoringDiv = document.createElement('div');
+        monitoringDiv.id = 'delivery-monitoring';
+        monitoringDiv.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: white;
+        border: 2px solid #007bff;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        z-index: 9999;
+        min-width: 250px;
+        font-family: Arial, sans-serif;
+    `;
+
+        monitoringDiv.innerHTML = `
+        <div style="font-weight: bold; color: #007bff; margin-bottom: 10px;">
+            📊 E2E Delivery Monitoring
+        </div>
+        <div id="delivery-stats">Initializing...</div>
+        <button onclick="this.parentNode.remove()" style="margin-top: 10px; padding: 5px 10px;">Close</button>
+    `;
+
+        document.body.appendChild(monitoringDiv);
+
+        // Poll delivery stats
+        const pollStats = async () => {
+            try {
+                const response = await fetch(`http://localhost:8001/api/push/delivery-stats/?notification_id=${notificationId}`);
+                if (response.ok) {
+                    const stats = await response.json();
+
+                    const statsDiv = document.getElementById('delivery-stats');
+                    if (statsDiv) {
+                        statsDiv.innerHTML = `
+                        <div>Total Sent: ${stats.total_sent || 0}</div>
+                        <div>Confirmed: ${stats.confirmed_deliveries || 0}</div>
+                        <div>Delivery Rate: ${(stats.delivery_rate_percent || 0).toFixed(1)}%</div>
+                        <div>Avg Latency: ${(stats.avg_delivery_latency_ms || 0).toFixed(1)}ms</div>
+                        <div style="margin-top: 5px; font-size: 12px; color: #666;">
+                            Last updated: ${new Date().toLocaleTimeString()}
+                        </div>
+                    `;
+                    }
+                }
+            } catch (error) {
+                console.error('Error polling delivery stats:', error);
+            }
+        };
+
+        // Poll every 2 seconds for the estimated duration + buffer
+        const pollInterval = setInterval(pollStats, 2000);
+        setTimeout(() => {
+            clearInterval(pollInterval);
+            const finalStats = document.getElementById('delivery-stats');
+            if (finalStats) {
+                finalStats.innerHTML += '<div style="color: #28a745; margin-top: 5px;">✅ Monitoring complete</div>';
+            }
+        }, (estimatedDuration + 10) * 1000);
+
+        // Initial poll
+        pollStats();
+    }
+
+    // Add E2E test button to the UI
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add E2E test button to controls
+        const controls = document.querySelector('.controls');
+        if (controls) {
+            const e2eButton = document.createElement('button');
+            e2eButton.className = 'btn success';
+            e2eButton.onclick = sendE2ETestNotifications;
+            e2eButton.innerHTML = '🎯 Start E2E Test';
+            e2eButton.title = 'Send real push notifications with end-to-end delivery tracking';
+
+            controls.appendChild(e2eButton);
+        }
+    });
+
     /**
      * Send sequential alerts from unified server
      */
