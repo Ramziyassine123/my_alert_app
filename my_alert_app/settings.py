@@ -1,17 +1,19 @@
-# my_alert_app/settings.py
+"""
+Django's settings for my_alert_app project
+"""
+
 import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-SECRET_KEY = 'django-insecure-feq_s^sb)=%@_0!v99iy(8vzypq41jik4f^#7wzqa0nyd$nru7'
-
+SECRET_KEY = 'django-insecure-client-side-8000-testing-dashboard-key'
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+# Client configuration
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
 
 # Application definition
 INSTALLED_APPS = [
@@ -57,17 +59,18 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [],
 }
 
-# CORS settings
+# CORS settings - Allow requests from SERVER (port 8001)
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8001",
     "http://127.0.0.1:8001",
 ]
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = DEBUG
+CORS_ALLOW_CREDENTIALS = True
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -82,15 +85,15 @@ TEMPLATES = [
 WSGI_APPLICATION = 'my_alert_app.wsgi.application'
 ASGI_APPLICATION = 'my_alert_app.asgi.application'
 
-# Database
+# Database - Different database name from SERVER
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / 'client_db.sqlite3',
     }
 }
 
-# Password validation - REMOVED since no authentication
+# Password validation
 AUTH_PASSWORD_VALIDATORS = []
 
 # Internationalization
@@ -99,7 +102,7 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
+# Static files
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
@@ -107,16 +110,108 @@ STATICFILES_DIRS = [
     BASE_DIR,  # For firebase-messaging-sw.js at root
 ]
 
-# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Channels configuration (for WebSocket)
+# Channels configuration
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels.layers.InMemoryChannelLayer',
     },
 }
 
+# Client Configuration - Points to ServerSide for testing
+CLIENT_CONFIG = {
+    'HOST': '127.0.0.1',
+    'PORT': 8000,
+    'NAME': 'Performance Testing Dashboard Client',
+    'SERVER_URLS': {
+        'websocket': 'ws://127.0.0.1:8001/ws/alerts/',
+        'longpolling': 'http://127.0.0.1:8001/api/poll/alerts/',
+        'push': 'http://127.0.0.1:8001/api/push/',
+        'health': 'http://127.0.0.1:8001/api/status/',
+    }
+}
 
-UNIFIED_SERVER_URL = 'http://localhost:8001'
-WEBSOCKET_SERVER_URL = 'ws://localhost:8001/ws/alerts/'
+# Performance Testing URLs - Point to ServerSide for CLIENT→SERVER testing
+PERFORMANCE_TEST_URLS = {
+    'WEBSOCKET_URL': 'ws://127.0.0.1:8001/ws/alerts/',
+    'LONGPOLLING_URL': 'http://127.0.0.1:8001/api/poll/alerts/',
+    'FIREBASE_URL': 'http://127.0.0.1:8001/api/push',
+    'SERVER_BASE_URL': 'http://127.0.0.1:8001',
+}
+
+# Firebase Configuration (for client-side)
+FIREBASE_CONFIG = {
+    'apiKey': "AIzaSyD1C5ob3B7L2N57vrlC-3siYRMwUgGLL7M",
+    'authDomain': "myalertappproject.firebaseapp.com",
+    'projectId': "myalertappproject",
+    'storageBucket': "myalertappproject.firebasestorage.app",
+    'messagingSenderId': "628710969002",
+    'appId': "1:628710969002:web:735611410af3e440d5cad3",
+    'measurementId': "G-S9HE2VRY8T"
+}
+
+# Enhanced Performance Testing Configuration
+ENHANCED_PERFORMANCE_CONFIG = {
+    'ENABLED': True,
+    'MAX_CONCURRENT_TESTS': 20,
+    'DEFAULT_TEST_DURATION': 120,
+    'MAX_TEST_DURATION': 600,
+    'RESOURCE_MONITORING_INTERVAL': 1.0,
+    'RESULTS_RETENTION_COUNT': 10,
+    'CLIENT_TO_SERVER_TESTING': True,
+    'SERVER_ENDPOINTS': {
+        'websocket': 'ws://127.0.0.1:8001/ws/alerts/',
+        'longpolling': 'http://127.0.0.1:8001/api/poll/alerts/',
+        'firebase': 'http://127.0.0.1:8001/api/push/',
+        'health': 'http://127.0.0.1:8001/api/status/'
+    }
+}
+
+# Enhanced Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '[{levelname}] {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'client.log',
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    'loggers': {
+        'alerts': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'alerts.enhanced_performance_views': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARNING',
+    },
+}
+
+# Create logs directory
+os.makedirs(BASE_DIR / 'logs', exist_ok=True)

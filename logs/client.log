@@ -1,0 +1,201 @@
+INFO 2025-06-21 20:50:05,478 views CLIENT resource monitoring started
+INFO 2025-06-21 20:50:06,110 views CLIENT resource monitoring stopped
+INFO 2025-06-21 21:04:19,171 views Starting enhanced CLIENT->SERVER performance tests: enhanced_test_1750532659_8e0e2f16
+INFO 2025-06-21 21:04:19,283 views CLIENT resource monitoring started
+INFO 2025-06-21 21:04:19,284 views Testing websocket CLIENT->SERVER...
+INFO 2025-06-21 21:04:19,284 views Starting WebSocket CLIENT->SERVER performance test
+INFO 2025-06-21 21:04:19,626 views WebSocket CLIENT->SERVER test completed: 5/5 successful
+INFO 2025-06-21 21:04:19,627 views Completed websocket CLIENT->SERVER testing
+INFO 2025-06-21 21:04:19,628 views Testing longpolling CLIENT->SERVER...
+INFO 2025-06-21 21:04:19,632 views Starting Long Polling CLIENT->SERVER performance test
+INFO 2025-06-21 21:04:19,758 views Long Polling CLIENT->SERVER test completed: 5/5 successful
+INFO 2025-06-21 21:04:19,760 views Completed longpolling CLIENT->SERVER testing
+INFO 2025-06-21 21:04:19,761 views Testing firebase CLIENT->SERVER...
+INFO 2025-06-21 21:04:19,761 views Starting Firebase CLIENT->SERVER performance test
+INFO 2025-06-21 21:04:20,259 views Firebase CLIENT->SERVER test completed: 5/5 tokens registered
+INFO 2025-06-21 21:04:20,267 views Completed firebase CLIENT->SERVER testing
+INFO 2025-06-21 21:04:20,785 views CLIENT resource monitoring stopped
+INFO 2025-06-21 21:04:20,785 views Enhanced CLIENT->SERVER performance tests completed: enhanced_test_1750532659_8e0e2f16
+INFO 2025-06-21 21:04:20,786 views Enhanced CLIENT->SERVER performance tests completed: enhanced_test_1750532659_8e0e2f16
+INFO 2025-06-21 21:48:06,936 views Starting enhanced CLIENT->SERVER performance tests: enhanced_test_1750535286_7054cebe
+INFO 2025-06-21 21:48:06,942 views CLIENT resource monitoring started
+INFO 2025-06-21 21:48:06,943 views Testing websocket CLIENT->SERVER...
+INFO 2025-06-21 21:48:06,944 views Starting WebSocket CLIENT->SERVER performance test
+INFO 2025-06-21 21:48:07,067 views WebSocket CLIENT->SERVER test completed: 5/5 successful
+INFO 2025-06-21 21:48:07,068 views Completed websocket CLIENT->SERVER testing
+INFO 2025-06-21 21:48:07,068 views Testing longpolling CLIENT->SERVER...
+INFO 2025-06-21 21:48:07,069 views Starting Long Polling CLIENT->SERVER performance test
+INFO 2025-06-21 21:48:07,165 views Long Polling CLIENT->SERVER test completed: 5/5 successful
+INFO 2025-06-21 21:48:07,167 views Completed longpolling CLIENT->SERVER testing
+INFO 2025-06-21 21:48:07,167 views Testing firebase CLIENT->SERVER...
+INFO 2025-06-21 21:48:07,167 views Starting Firebase CLIENT->SERVER performance test
+INFO 2025-06-21 21:48:07,773 views Firebase CLIENT->SERVER test completed: 5/5 tokens registered
+INFO 2025-06-21 21:48:07,778 views Completed firebase CLIENT->SERVER testing
+INFO 2025-06-21 21:48:08,202 views CLIENT resource monitoring stopped
+INFO 2025-06-21 21:48:08,203 views Enhanced CLIENT->SERVER performance tests completed: enhanced_test_1750535286_7054cebe
+INFO 2025-06-21 21:48:08,203 views Enhanced CLIENT->SERVER performance tests completed: enhanced_test_1750535286_7054cebe
+INFO 2025-06-21 21:50:40,243 views Starting enhanced CLIENT->SERVER performance tests: enhanced_test_1750535440_c4683dc1
+INFO 2025-06-21 21:50:40,246 views CLIENT resource monitoring started
+INFO 2025-06-21 21:50:40,247 views Testing websocket CLIENT->SERVER...
+INFO 2025-06-21 21:50:40,247 views Starting WebSocket CLIENT->SERVER performance test
+INFO 2025-06-21 21:50:40,311 views WebSocket CLIENT->SERVER test completed: 5/5 successful
+INFO 2025-06-21 21:50:40,311 views Completed websocket CLIENT->SERVER testing
+INFO 2025-06-21 21:50:40,311 views Testing longpolling CLIENT->SERVER...
+INFO 2025-06-21 21:50:40,312 views Starting Long Polling CLIENT->SERVER performance test
+INFO 2025-06-21 21:50:40,448 views Long Polling CLIENT->SERVER test completed: 5/5 successful
+INFO 2025-06-21 21:50:40,450 views Completed longpolling CLIENT->SERVER testing
+INFO 2025-06-21 21:50:40,450 views Testing firebase CLIENT->SERVER...
+INFO 2025-06-21 21:50:40,450 views Starting Firebase CLIENT->SERVER performance test
+INFO 2025-06-21 21:50:40,711 views Firebase CLIENT->SERVER test completed: 5/5 tokens registered
+INFO 2025-06-21 21:50:40,712 views Completed firebase CLIENT->SERVER testing
+INFO 2025-06-21 21:50:40,875 views CLIENT resource monitoring stopped
+INFO 2025-06-21 21:50:40,876 views Enhanced CLIENT->SERVER performance tests completed: enhanced_test_1750535440_c4683dc1
+INFO 2025-06-21 21:50:40,876 views Enhanced CLIENT->SERVER performance tests completed: enhanced_test_1750535440_c4683dc1
+INFO 2025-06-21 21:52:04,186 views Starting enhanced CLIENT->SERVER performance tests: enhanced_test_1750535524_d60cc455
+INFO 2025-06-21 21:52:04,189 views CLIENT resource monitoring started
+INFO 2025-06-21 21:52:04,191 views Testing websocket CLIENT->SERVER...
+INFO 2025-06-21 21:52:04,191 views Starting WebSocket CLIENT->SERVER performance test
+INFO 2025-06-21 21:52:04,231 views WebSocket CLIENT->SERVER test completed: 5/5 successful
+INFO 2025-06-21 21:52:04,231 views Completed websocket CLIENT->SERVER testing
+INFO 2025-06-21 21:52:04,232 views Testing longpolling CLIENT->SERVER...
+INFO 2025-06-21 21:52:04,232 views Starting Long Polling CLIENT->SERVER performance test
+INFO 2025-06-21 21:52:04,338 views Long Polling CLIENT->SERVER test completed: 5/5 successful
+INFO 2025-06-21 21:52:04,339 views Completed longpolling CLIENT->SERVER testing
+INFO 2025-06-21 21:52:04,339 views Testing firebase CLIENT->SERVER...
+INFO 2025-06-21 21:52:04,339 views Starting Firebase CLIENT->SERVER performance test
+INFO 2025-06-21 21:52:04,508 views Firebase CLIENT->SERVER test completed: 5/5 tokens registered
+INFO 2025-06-21 21:52:04,508 views Completed firebase CLIENT->SERVER testing
+INFO 2025-06-21 21:52:04,809 views CLIENT resource monitoring stopped
+INFO 2025-06-21 21:52:04,809 views Enhanced CLIENT->SERVER performance tests completed: enhanced_test_1750535524_d60cc455
+INFO 2025-06-21 21:52:04,809 views Enhanced CLIENT->SERVER performance tests completed: enhanced_test_1750535524_d60cc455
+INFO 2025-06-22 00:23:17,655 views Starting enhanced CLIENT->SERVER performance tests: enhanced_test_1750544597_cc4e1f6d
+INFO 2025-06-22 00:23:17,658 views CLIENT resource monitoring started
+INFO 2025-06-22 00:23:17,658 views Testing websocket CLIENT->SERVER...
+INFO 2025-06-22 00:23:17,659 views Starting WebSocket CLIENT->SERVER performance test
+INFO 2025-06-22 00:23:17,703 views WebSocket CLIENT->SERVER test completed: 5/5 successful
+INFO 2025-06-22 00:23:17,704 views Completed websocket CLIENT->SERVER testing
+INFO 2025-06-22 00:23:17,705 views Testing longpolling CLIENT->SERVER...
+INFO 2025-06-22 00:23:17,705 views Starting Long Polling CLIENT->SERVER performance test
+INFO 2025-06-22 00:23:17,824 views Long Polling CLIENT->SERVER test completed: 5/5 successful
+INFO 2025-06-22 00:23:17,824 views Completed longpolling CLIENT->SERVER testing
+INFO 2025-06-22 00:23:17,825 views Testing firebase CLIENT->SERVER...
+INFO 2025-06-22 00:23:17,825 views Starting Firebase CLIENT->SERVER performance test
+INFO 2025-06-22 00:23:17,871 views Firebase stats: 0 active tokens
+INFO 2025-06-22 00:23:17,893 views Firebase CLIENT->SERVER test completed: 1/2 tests successful
+INFO 2025-06-22 00:23:17,893 views Completed firebase CLIENT->SERVER testing
+INFO 2025-06-22 00:23:18,279 views CLIENT resource monitoring stopped
+INFO 2025-06-22 00:23:18,279 views Enhanced CLIENT->SERVER performance tests completed: enhanced_test_1750544597_cc4e1f6d
+INFO 2025-06-22 00:23:18,279 views Enhanced CLIENT->SERVER performance tests completed: enhanced_test_1750544597_cc4e1f6d
+INFO 2025-06-22 01:36:10,577 views Starting enhanced CLIENT->SERVER performance tests: enhanced_test_1750548970_80683f7f
+ERROR 2025-06-22 01:36:10,578 views Enhanced test execution error: 'EnhancedPerformanceTestRunner' object has no attribute 'start_resource_monitoring'
+ERROR 2025-06-22 01:36:15,626 views Failed to get test results: 'EnhancedPerformanceTestRunner' object has no attribute 'get_test_results'
+ERROR 2025-06-22 01:36:20,629 views Failed to get test results: 'EnhancedPerformanceTestRunner' object has no attribute 'get_test_results'
+ERROR 2025-06-22 01:36:25,667 views Failed to get test results: 'EnhancedPerformanceTestRunner' object has no attribute 'get_test_results'
+ERROR 2025-06-22 01:36:30,677 views Failed to get test results: 'EnhancedPerformanceTestRunner' object has no attribute 'get_test_results'
+ERROR 2025-06-22 01:36:35,678 views Failed to get test results: 'EnhancedPerformanceTestRunner' object has no attribute 'get_test_results'
+ERROR 2025-06-22 01:36:40,692 views Failed to get test results: 'EnhancedPerformanceTestRunner' object has no attribute 'get_test_results'
+ERROR 2025-06-22 01:36:45,709 views Failed to get test results: 'EnhancedPerformanceTestRunner' object has no attribute 'get_test_results'
+ERROR 2025-06-22 01:36:50,716 views Failed to get test results: 'EnhancedPerformanceTestRunner' object has no attribute 'get_test_results'
+ERROR 2025-06-22 01:36:55,725 views Failed to get test results: 'EnhancedPerformanceTestRunner' object has no attribute 'get_test_results'
+ERROR 2025-06-22 01:37:00,729 views Failed to get test results: 'EnhancedPerformanceTestRunner' object has no attribute 'get_test_results'
+ERROR 2025-06-22 01:37:05,742 views Failed to get test results: 'EnhancedPerformanceTestRunner' object has no attribute 'get_test_results'
+ERROR 2025-06-22 01:37:10,755 views Failed to get test results: 'EnhancedPerformanceTestRunner' object has no attribute 'get_test_results'
+ERROR 2025-06-22 01:37:15,765 views Failed to get test results: 'EnhancedPerformanceTestRunner' object has no attribute 'get_test_results'
+ERROR 2025-06-22 01:37:20,775 views Failed to get test results: 'EnhancedPerformanceTestRunner' object has no attribute 'get_test_results'
+INFO 2025-06-22 01:39:16,809 views Starting enhanced CLIENT->SERVER performance tests: enhanced_test_1750549156_cbfa29b6
+ERROR 2025-06-22 01:39:16,810 views Enhanced test execution error: 'EnhancedPerformanceTestRunner' object has no attribute 'start_resource_monitoring'
+ERROR 2025-06-22 01:39:21,843 views Failed to get test results: 'EnhancedPerformanceTestRunner' object has no attribute 'get_test_results'
+ERROR 2025-06-22 01:39:26,843 views Failed to get test results: 'EnhancedPerformanceTestRunner' object has no attribute 'get_test_results'
+ERROR 2025-06-22 01:39:31,842 views Failed to get test results: 'EnhancedPerformanceTestRunner' object has no attribute 'get_test_results'
+ERROR 2025-06-22 01:39:36,884 views Failed to get test results: 'EnhancedPerformanceTestRunner' object has no attribute 'get_test_results'
+ERROR 2025-06-22 01:39:41,851 views Failed to get test results: 'EnhancedPerformanceTestRunner' object has no attribute 'get_test_results'
+INFO 2025-06-22 02:38:59,582 views Starting enhanced CLIENT->SERVER performance tests: enhanced_test_1750552739_d403d2e8
+INFO 2025-06-22 02:38:59,587 views CLIENT resource monitoring started
+INFO 2025-06-22 02:38:59,587 views Resource monitoring started
+INFO 2025-06-22 02:38:59,588 views Testing websocket CLIENT->SERVER...
+INFO 2025-06-22 02:38:59,588 views Starting WebSocket CLIENT->SERVER performance test
+INFO 2025-06-22 02:38:59,653 views WebSocket CLIENT->SERVER test completed: 5/5 successful
+INFO 2025-06-22 02:38:59,654 views Completed websocket CLIENT->SERVER testing
+INFO 2025-06-22 02:38:59,655 views Testing longpolling CLIENT->SERVER...
+INFO 2025-06-22 02:38:59,657 views Starting Long Polling CLIENT->SERVER performance test
+INFO 2025-06-22 02:38:59,849 views Long Polling CLIENT->SERVER test completed: 5/5 successful
+INFO 2025-06-22 02:38:59,851 views Completed longpolling CLIENT->SERVER testing
+INFO 2025-06-22 02:38:59,851 views Testing firebase CLIENT->SERVER...
+INFO 2025-06-22 02:38:59,852 views Starting REAL End-to-End Firebase performance test
+INFO 2025-06-22 02:38:59,852 views Step 1: Registering real test tokens...
+INFO 2025-06-22 02:39:00,083 views Step 2: Verifying token registration...
+INFO 2025-06-22 02:39:00,149 views Step 3: Sending REAL push notifications...
+INFO 2025-06-22 02:39:00,321 views Step 4: Measuring end-to-end delivery time...
+INFO 2025-06-22 02:39:12,365 views Step 5: Cleaning up test tokens...
+INFO 2025-06-22 02:39:12,365 views REAL End-to-End Firebase test completed: 5/5 tests successful
+INFO 2025-06-22 02:39:12,366 views Completed firebase CLIENT->SERVER testing
+INFO 2025-06-22 02:39:12,690 views CLIENT resource monitoring stopped
+INFO 2025-06-22 02:39:12,690 views Resource monitoring stopped
+INFO 2025-06-22 02:39:12,690 views Enhanced CLIENT->SERVER performance tests completed: enhanced_test_1750552739_d403d2e8
+INFO 2025-06-22 02:39:12,691 views Enhanced CLIENT->SERVER performance tests completed: enhanced_test_1750552739_d403d2e8
+INFO 2025-06-22 03:26:27,285 views Starting enhanced CLIENT->SERVER performance tests: enhanced_test_1750555587_3b635fde
+INFO 2025-06-22 03:26:27,292 views CLIENT resource monitoring started
+INFO 2025-06-22 03:26:27,296 views Resource monitoring started
+INFO 2025-06-22 03:26:27,299 views Testing websocket CLIENT->SERVER...
+INFO 2025-06-22 03:26:27,300 views Starting WebSocket CLIENT->SERVER performance test
+INFO 2025-06-22 03:26:27,470 views WebSocket CLIENT->SERVER test completed: 5/5 successful
+INFO 2025-06-22 03:26:27,471 views Completed websocket CLIENT->SERVER testing
+INFO 2025-06-22 03:26:27,471 views Testing longpolling CLIENT->SERVER...
+INFO 2025-06-22 03:26:27,472 views Starting Long Polling CLIENT->SERVER performance test
+INFO 2025-06-22 03:26:27,700 views Long Polling CLIENT->SERVER test completed: 5/5 successful
+INFO 2025-06-22 03:26:27,703 views Completed longpolling CLIENT->SERVER testing
+INFO 2025-06-22 03:26:27,704 views Testing firebase CLIENT->SERVER...
+INFO 2025-06-22 03:26:27,704 views Starting Enhanced Firebase performance test
+INFO 2025-06-22 03:26:27,706 views Step 1: Registering enhanced test tokens...
+INFO 2025-06-22 03:26:27,772 views [SUCCESS] Registered enhanced test token 1: 62.99ms
+INFO 2025-06-22 03:26:27,841 views [SUCCESS] Registered enhanced test token 2: 68.56ms
+INFO 2025-06-22 03:26:27,900 views [SUCCESS] Registered enhanced test token 3: 58.27ms
+INFO 2025-06-22 03:26:27,900 views Step 2: Verifying token registration...
+INFO 2025-06-22 03:26:27,953 views [SUCCESS] Server has 7 active tokens
+INFO 2025-06-22 03:26:27,954 views Step 3: Testing push notification API...
+INFO 2025-06-22 03:26:28,007 views [SUCCESS] Firebase API accessible: 52.96ms response time
+INFO 2025-06-22 03:26:28,099 views [SUCCESS] Send API accessible: 91.46ms response time
+INFO 2025-06-22 03:26:28,100 views Step 4: Measuring enhanced API latency...
+INFO 2025-06-22 03:26:28,134 views [SUCCESS] API ping 1: 34.16ms
+INFO 2025-06-22 03:26:28,172 views [SUCCESS] API ping 2: 37.32ms
+INFO 2025-06-22 03:26:28,215 views [SUCCESS] API ping 3: 43.21ms
+INFO 2025-06-22 03:26:28,216 views Step 5: Test summary...
+INFO 2025-06-22 03:26:28,216 views Enhanced Firebase test completed: 8/8 tests successful
+INFO 2025-06-22 03:26:28,217 views Completed firebase CLIENT->SERVER testing
+INFO 2025-06-22 03:26:28,600 views CLIENT resource monitoring stopped
+INFO 2025-06-22 03:26:28,600 views Resource monitoring stopped
+INFO 2025-06-22 03:26:28,600 views Enhanced CLIENT->SERVER performance tests completed: enhanced_test_1750555587_3b635fde
+INFO 2025-06-22 03:26:28,601 views Enhanced CLIENT->SERVER performance tests completed: enhanced_test_1750555587_3b635fde
+INFO 2025-06-22 03:30:59,919 views Starting enhanced CLIENT->SERVER performance tests: enhanced_test_1750555859_58c7b36f
+INFO 2025-06-22 03:30:59,937 views CLIENT resource monitoring started
+INFO 2025-06-22 03:30:59,940 views Resource monitoring started
+INFO 2025-06-22 03:30:59,942 views Testing websocket CLIENT->SERVER...
+INFO 2025-06-22 03:30:59,943 views Starting WebSocket CLIENT->SERVER performance test
+INFO 2025-06-22 03:31:00,051 views WebSocket CLIENT->SERVER test completed: 5/5 successful
+INFO 2025-06-22 03:31:00,132 views Completed websocket CLIENT->SERVER testing
+INFO 2025-06-22 03:31:00,135 views Testing longpolling CLIENT->SERVER...
+INFO 2025-06-22 03:31:00,136 views Starting Long Polling CLIENT->SERVER performance test
+INFO 2025-06-22 03:31:00,303 views Long Polling CLIENT->SERVER test completed: 5/5 successful
+INFO 2025-06-22 03:31:00,305 views Completed longpolling CLIENT->SERVER testing
+INFO 2025-06-22 03:31:00,305 views Testing firebase CLIENT->SERVER...
+INFO 2025-06-22 03:31:00,306 views Starting Enhanced Firebase performance test
+INFO 2025-06-22 03:31:00,307 views Step 1: Registering enhanced test tokens...
+INFO 2025-06-22 03:31:00,358 views [SUCCESS] Registered enhanced test token 1: 49.79ms
+INFO 2025-06-22 03:31:00,405 views [SUCCESS] Registered enhanced test token 2: 47.50ms
+INFO 2025-06-22 03:31:00,449 views [SUCCESS] Registered enhanced test token 3: 42.75ms
+INFO 2025-06-22 03:31:00,450 views Step 2: Verifying token registration...
+INFO 2025-06-22 03:31:00,483 views [SUCCESS] Server has 10 active tokens
+INFO 2025-06-22 03:31:00,484 views Step 3: Testing push notification API...
+INFO 2025-06-22 03:31:00,518 views [SUCCESS] Firebase API accessible: 34.48ms response time
+INFO 2025-06-22 03:31:00,563 views [SUCCESS] Send API accessible: 44.95ms response time
+INFO 2025-06-22 03:31:00,563 views Step 4: Measuring enhanced API latency...
+INFO 2025-06-22 03:31:00,602 views [SUCCESS] API ping 1: 37.04ms
+INFO 2025-06-22 03:31:00,639 views [SUCCESS] API ping 2: 36.43ms
+INFO 2025-06-22 03:31:00,685 views [SUCCESS] API ping 3: 44.73ms
+INFO 2025-06-22 03:31:00,686 views Step 5: Test summary...
+INFO 2025-06-22 03:31:00,686 views Enhanced Firebase test completed: 8/8 tests successful
+INFO 2025-06-22 03:31:00,687 views Completed firebase CLIENT->SERVER testing
+INFO 2025-06-22 03:31:01,277 views CLIENT resource monitoring stopped
+INFO 2025-06-22 03:31:01,278 views Resource monitoring stopped
+INFO 2025-06-22 03:31:01,299 views Enhanced CLIENT->SERVER performance tests completed: enhanced_test_1750555859_58c7b36f
+INFO 2025-06-22 03:31:01,300 views Enhanced CLIENT->SERVER performance tests completed: enhanced_test_1750555859_58c7b36f
