@@ -1,0 +1,13 @@
+{
+    "technologies": ["websocket", "longpolling", "firebase"],
+    "duration": 30,
+    "message_count": 50,
+    "concurrent_clients": 25,
+    "max_connections": 100,
+    "token_count": 25,
+    "test_description": "Enhanced performance test for research analysis",
+    "network_profiles": ["perfect", "local_wifi", "good_mobile", "poor_mobile", "satellite"],
+    "output_formats": ["html", "csv", "json"],
+    "generate_reports": true,
+    "save_raw_data": true
+}

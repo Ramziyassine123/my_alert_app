@@ -1,0 +1,44 @@
+{
+  "alerts": [
+    {
+      "title": "Performance Test Alert 1",
+      "message": "This is the first performance test alert message from ServerSide WebSocket system"
+    },
+    {
+      "title": "Performance Test Alert 2",
+      "message": "Second alert for testing WebSocket and Long Polling performance with real connections"
+    },
+    {
+      "title": "Performance Test Alert 3",
+      "message": "Third test alert to measure delivery latency and success rates under load"
+    },
+    {
+      "title": "Load Test Alert",
+      "message": "Alert designed for load testing with multiple concurrent WebSocket connections"
+    },
+    {
+      "title": "Stress Test Alert",
+      "message": "Stress testing alert to verify system stability under heavy WebSocket load"
+    },
+    {
+      "title": "Network Simulation Alert",
+      "message": "Alert for testing different network conditions and latency scenarios via WebSocket"
+    },
+    {
+      "title": "End-to-End Test Alert",
+      "message": "Complete end-to-end delivery verification test alert through WebSocket connection"
+    },
+    {
+      "title": "Scalability Test Alert",
+      "message": "Alert for testing system scalability with thousands of concurrent WebSocket connections"
+    },
+    {
+      "title": "Reliability Test Alert",
+      "message": "Testing WebSocket system reliability and error handling capabilities under stress"
+    },
+    {
+      "title": "Final Performance Alert",
+      "message": "Last alert in the sequence to complete WebSocket performance testing cycle"
+    }
+  ]
+}
